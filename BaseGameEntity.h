@@ -2,30 +2,22 @@
 class BaseGameEntity
 {
 
-private:	
+private:
 	int ID;
-	static int nextValidID;
+
+	static int nextEligibleID;
+
 public:
-	BaseGameEntity(int id)
-	{
-		SetID(id);
-	}
 
-	
-	virtual  ~BaseGameEntity()
-	{
+	BaseGameEntity(int id);
 
-	}
-	void SetID(int id)
-	{
-		ID = id;
-	}
+	void SetID(int id);
+
+	virtual ~BaseGameEntity();
 
 	virtual void Update() = 0;
-	int GetID()const
-	{
-		return ID;
-	}
+
+	int GetID()const;
 
 };
 

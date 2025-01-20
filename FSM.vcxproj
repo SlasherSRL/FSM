@@ -127,10 +127,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="BaseGameEntity.h" />
+    <ClCompile Include="BaseGameEntity.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="Actor.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp" />
+    <ClInclude Include="BaseGameEntity.h" />
+    <ClInclude Include="Actor.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
