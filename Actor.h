@@ -1,5 +1,6 @@
 #pragma once
 #include "BaseGameEntity.h"
+#include "Locations.h"
 
 enum class JobType
 {
