@@ -57,5 +57,6 @@ public:
     float GetHunger()const; 
     float GetThirst()const; 
     float GetEnergy()const;
+    Locations GetCurrentLocation()const;
 };
 
