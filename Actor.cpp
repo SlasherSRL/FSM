@@ -25,6 +25,14 @@ void Actor::Update()
 }
 float Actor::GetHunger()const
 {
-
+	return hunger;
+}
+float Actor::GetEnergy()const
+{
+	return energy;
+}
+float Actor::GetThirst()const
+{
+	return thirst;
 }
 
