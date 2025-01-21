@@ -23,3 +23,8 @@ void Actor::Update()
    	energy = std::max(0, energy);
 
 }
+float Actor::GetHunger()const
+{
+
+}
+
