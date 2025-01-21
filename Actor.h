@@ -36,7 +36,8 @@ class Actor :
     public BaseGameEntity
 {
 private:
-    
+
+    Location currentLocation;
     int money;
     float thirst;
     float hunger;
