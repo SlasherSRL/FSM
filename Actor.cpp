@@ -1,6 +1,6 @@
 #include "Actor.h"
 
-Actor::Actor(int id, JobType job=UNEMPLOYED): BaseGameEntity(id)
+Actor::Actor(int id, JobType job=JobType::UNEMPLOYED): BaseGameEntity(id)
 {
 	job = CreateJob(job);
 	hunger = 100.0f;
