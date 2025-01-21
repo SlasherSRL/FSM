@@ -46,10 +46,12 @@ private:
 public:
     Actor(int id, JobType job);
 
+
     void Update();
 
     void ChangeState();
 
+    void SetJob();
     float GetHunger()const; 
     float GetThirst()const; 
     float GetEnergy()const;
