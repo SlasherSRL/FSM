@@ -51,7 +51,7 @@ public:
 
     void ChangeState();
 
-    void SetJob();
+    void SetJob(Job& newJob);
     float GetHunger()const; 
     float GetThirst()const; 
     float GetEnergy()const;
