@@ -34,6 +34,11 @@ void Actor::Update()
 	{
 		std::cout<<"Actor "<<this.GetID()<<" has died from sleep deprivation"<<std::endl;
 	}
+	if(money>=160)
+	{
+		std::cout<<"Actor "<<this.GetID()<<" is feeling wealthy. He wants to stop working for now"<<std::endl;
+	}
+	
 
 }
 void Actor::SetJob(Job& newJob)
