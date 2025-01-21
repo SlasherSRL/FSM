@@ -7,6 +7,10 @@ Actor::Actor(int id, JobType job=UNEMPLOYED): BaseGameEntity(id)
 
 void Actor::Update()
 {
-	hunger += 1;
+	hunger -=job.hungerRate;
+	thirst -=job.thirstRate;
+	energy -=job.energyRate;
+
+	money+= job.incomeRate;
 
 }
