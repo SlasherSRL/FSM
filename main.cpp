@@ -8,11 +8,11 @@ int main()
 	auto lastTime = std::chrono::high_resolution_clock::now();
 	auto currentTime = lastTime;
 	float TPS = 60.0f;
-	const float timePerTick = 1/TPS;
+	const float timePerTick = 1.0f/TPS;
 	float tick = 0.0;
 
 	cout << timePerTick<<endl;
-	//Actor steve(1);
+	Actor steve(1);
 	//Actor Dave(2);
 	
 	
@@ -23,11 +23,14 @@ int main()
 		currentTime = std::chrono::high_resolution_clock::now(); 
 		tick += std::chrono::duration<float>(currentTime-lastTime).count(); 
 		lastTime = currentTime; 
-		if (tick >= timePerTick) 
+		if (tick >= timePerTick) // activates per tick
 		{
+			//time based actions here
 			float deltaTime = tick;
 			tick -= timePerTick;
-			cout << deltaTime << endl;
+			steve.Update();
+			
+			
 		}
 
 		
