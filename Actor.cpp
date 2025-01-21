@@ -23,6 +23,10 @@ void Actor::Update()
    	energy = std::max(0, energy);
 
 }
+void Actor::SetJob(Job& newJob)
+{
+	job = newJob;
+}
 float Actor::GetHunger()const
 {
 	return hunger;
