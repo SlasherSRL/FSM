@@ -3,6 +3,7 @@
 Actor::Actor(int id, JobType job=JobType::UNEMPLOYED): BaseGameEntity(id)
 {
 	job = CreateJob(job);
+	currentLocation= Locations::HOME;
 	hunger = 100.0f;
 	thirst=100.0f;
 	energy=100.0f;
