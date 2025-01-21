@@ -48,5 +48,9 @@ public:
     void Update();
 
     void ChangeState();
+
+    float GetHunger() const { return hunger; }
+    float GetThirst() const { return thirst; }
+    float GetEnergy() const { return energy; }
 };
 
