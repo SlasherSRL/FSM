@@ -58,4 +58,9 @@ float Actor::GetThirst()const
 {
 	return thirst;
 }
+Locations Actor::GetCurrentLocation()const
+{
+	return currentLocaiton;
+}
+
 
