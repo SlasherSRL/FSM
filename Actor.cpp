@@ -18,4 +18,8 @@ void Actor::Update()
 
 	money+= job.incomeRate;
 
+	hunger = std::max(0, hunger); //make sure to not have values become negatives
+    	thirst = std::max(0, thirst);
+   	energy = std::max(0, energy);
+
 }
