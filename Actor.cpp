@@ -22,6 +22,19 @@ void Actor::Update()
     	thirst = std::max(0, thirst);
    	energy = std::max(0, energy);
 
+	if(thirst=<0)
+	{
+		std::cout<<"Actor "<<this.GetID()<<" has died from dehydration"<<std::endl;
+	}
+	if(hunger=<0)
+	{
+		std::cout<<"Actor "<<this.GetID()<<" has died from starvation"<<std::endl;
+	}
+	if(energy=<0)
+	{
+		std::cout<<"Actor "<<this.GetID()<<" has died from sleep deprivation"<<std::endl;
+	}
+
 }
 void Actor::SetJob(Job& newJob)
 {
