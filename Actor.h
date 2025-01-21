@@ -17,8 +17,18 @@ struct Job
 };
 Job CreateJob(JobType type)
 {
-
-]
+    switch(type)
+    {
+        case JobType::OFFICE_WORKER:
+            return{type,20,5,3,2};
+        case JobType::PILOT:
+            return{type,50,6,4,3};
+        case JobType::UNEMPLOYED:
+            return {type,0,2,2,1};
+        default:
+            std::cerr<<"Uknown Job type"<<std::endl;
+    }
+}
 
 class Actor :
     public BaseGameEntity
