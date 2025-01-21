@@ -15,6 +15,11 @@ struct Job
     int energyRate;
     
 };
+Job CreateJob(JobType type)
+{
+
+]
+
 class Actor :
     public BaseGameEntity
 {
@@ -28,7 +33,7 @@ private:
     Job job;
 
 public:
-    Actor(int id);
+    Actor(int id, JobType job);
 
     void Update();
 
