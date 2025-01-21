@@ -29,7 +29,9 @@ int main()
 			float deltaTime = tick;
 			tick -= timePerTick;
 			steve.Update();
-			
+			 std::cout << "Hunger: " << steve.GetHunger()
+                     		 << ", Thirst: " << steve.GetThirst()
+                     		 << ", Energy: " << steve.GetEnergy() << '\n';
 			
 		}
 
