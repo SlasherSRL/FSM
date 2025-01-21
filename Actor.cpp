@@ -1,8 +1,8 @@
 #include "Actor.h"
 
-Actor::Actor(int id): BaseGameEntity(id)
+Actor::Actor(int id, JobType job=UNEMPLOYED): BaseGameEntity(id)
 {
-	
+	job = CreateJob(job);
 }
 
 void Actor::Update()
