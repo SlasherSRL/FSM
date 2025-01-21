@@ -20,11 +20,11 @@ Job CreateJob(JobType type)
     switch(type)
     {
         case JobType::OFFICE_WORKER:
-            return{type,20,5,3,2};
+            return {type, 10, 1 / 10.0f, 1 / 3.0f, 1 / 2.0f};  // Hunger, Thirst, Energy rates
         case JobType::PILOT:
-            return{type,50,6,4,3};
+            return {type, 15, 1 / 8.0f, 1 / 2.0f, 1 / 3.0f};  // Pilots thirst more and tire faster
         case JobType::UNEMPLOYED:
-            return {type,0,2,2,1};
+            return {type, 0, 1 / 15.0f, 1 / 5.0f, 1 / 4.0f};  // Unemployed have slower rates
         default:
             std::cerr<<"Uknown Job type"<<std::endl;
     }
@@ -36,9 +36,9 @@ class Actor :
 private:
     
     int money;
-    int thirst;
-    int hunger;
-    int energy;
+    float thirst;
+    float hunger;
+    float energy;
     int happiness;
     Job job;
 
