@@ -3,10 +3,11 @@
 Actor::Actor(int id, JobType job=UNEMPLOYED): BaseGameEntity(id)
 {
 	job = CreateJob(job);
-	hunger = 100;
-	thirst=100;
-	energy=100;
+	hunger = 100.0f;
+	thirst=100.0f;
+	energy=100.0f;
 	money=0;
+	happniess= 75;
 }
 
 void Actor::Update()
