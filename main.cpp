@@ -17,8 +17,8 @@ int main()
 	
 	
 	//cout << steve.GetID()<<endl;
-	
-	while (true)
+	bool looping = true;
+	while (looping)
 	{
 		currentTime = std::chrono::high_resolution_clock::now(); 
 		tick += std::chrono::duration<float>(currentTime-lastTime).count(); 
