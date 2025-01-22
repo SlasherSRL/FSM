@@ -1,81 +1,56 @@
 #include "Actor.h"
 
-Actor::Actor(int id, JobType newJob): BaseGameEntity(id)
+Actor::Actor(int id, std::string myName): BaseGameEntity(id)
 {
-	job = CreateJob(newJob);
+	
+	stateMachine = new FSM<Actor>(this);
+	name = myName;
+
 	currentLocation= Location::HOME;
 	hunger = 0.0f;
 	thirst=0.0f;
 	energy=100.0f;
 	money=0;
 	socialized= 75;
+	
+	ChangeState(new State_Sleep());
 }
 void Actor::ChangeState(State* state)
 {
-	currentState->Exit(this);
-	currentState = state;
-	currentState->Enter(this);
+	stateMachine->ChangeState(state);
 }
 void Actor::Update()
 {
-	hunger += 1.0f / 15.0f;
-	thirst += 1.0f / 10.0f;
-	energy -= 1.0f / 20.0f; // happy with this rate while not working for now
+	
+	//energy -= 1.0f / 20.0f; // happy with this rate while not working for now
 	
 
-	if (thirst >= 30.0f)
-	{
-		isThirsty = true;
-	}
-	else
-	{
-		isThirsty = false;
-	}
-
-	if (hunger >= 30.0f)
-	{
-		isHungry = true;
-	}
-	else
-	{
-		isHungry = false;
-	}
-
-	if (energy<= 30)
-	{
-		isTired = true;
-	}
-	else
-	{
-		isTired = false;
-	}
-
-
-
-	/*if (thirst >= 100)
-	{
-		std::cout<<"Actor "<<GetID()<<" has died from dehydration"<<std::endl;
-		
-	}
-	if(hunger>=100)
-	{
-		std::cout<<"Actor "<<GetID()<<" has died from starvation"<<std::endl;
-	}
-	if(energy<=0)
-	{
-		std::cout<<"Actor "<<GetID()<<" has died from sleep deprivation"<<std::endl;
-	}
-	if(money>=160)
-	{
-		std::cout<<"Actor "<<GetID()<<" is feeling wealthy. He wants to stop working for now"<<std::endl;
-	}*/
 	
+
+
+	stateMachine->Update();
 
 
 }
-void Actor::SetJob(Job& newJob)
+void Actor::ChooseJob()
 {
-	job = newJob;
+	if (energy >= 85)
+	{
+		job = CreateJob(JobType::PILOT);
+
+	}
+	else
+	{
+		job = CreateJob(JobType::OFFICE_WORKER);
+	}
+}
+Job Actor::GetJob()const
+{
+	return job;
+}
+std::string Actor::GetName()const
+{
+	return name;
 }
 float Actor::GetHunger()const
 {
@@ -93,26 +68,54 @@ int Actor::GetMoney()const
 {
 	return money;
 }
+float Actor::GetSocialized()const
+{
+	return socialized;
+}
 
 void Actor::DecreaseHunger(float amount)
 {
 	hunger -= amount;
 }
+void Actor::IncreaseHunger(float amount)
+{
+	hunger += amount;
+}
 void Actor::DecreaseThirst(float amount)
 {
 	thirst -= amount;
+}
+void Actor::IncreaseThirst(float amount)
+{
+	thirst += amount;
 }
 void Actor::IncreaseEnergy(float amount)
 {
 	energy += amount;
 }
+void Actor::DecreaseEnergy(float amount)
+{
+	energy -= amount;
+}
 void Actor::DecreaseMoney(int amount)
 {
 	money -= amount;
 }
-void Actor::IncreaseSocialized(int amount)
+void Actor::IncreaseMoney(int amount)
+{
+	money += amount;
+}
+void Actor::IncreaseSocialized(float amount)
 {
 	socialized += amount;
+}
+void Actor::DecreaseSocialized(float amount)
+{
+	socialized -= amount;
+}
+void Actor::SetLocation(Location location)
+{
+	currentLocation = location;
 }
 Location Actor::GetCurrentLocation()const
 {

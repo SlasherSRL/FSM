@@ -12,7 +12,7 @@ int main()
 	float tick = 0.0;
 	int tickCounter = 0;
 	
-	Actor steve(1);
+	Actor steve(1,"Steve");
 	//Actor Dave(2);
 	
 	
@@ -31,10 +31,10 @@ int main()
 			steve.Update();
 
 			tickCounter++;
-			 std::cout << "Tick"<<tickCounter<<" :Hunger: " << steve.GetHunger()
-                       << ", Thirst: " << steve.GetThirst()
-                       << ", Energy: " << steve.GetEnergy() << '\n';
-			 std::cout << "Steve is at" << LocationToString(steve.GetCurrentLocation())<<endl;
+			 std::cout << "Tick"<<tickCounter<<"| Hunger: " << steve.GetHunger()
+                       << "| Thirst: " << steve.GetThirst()
+                       << "| Energy: " << steve.GetEnergy() << "| Socialized:"<<steve.GetSocialized()<<"| Money:"<<steve.GetMoney()<<'\n';
+			 std::cout << steve.GetName()<<" is at " << LocationToString(steve.GetCurrentLocation())<<endl;
 			
 		}
 

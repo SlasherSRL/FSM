@@ -1,29 +1,37 @@
 #pragma once
-#include "Actor.h"
-using namespace std;
+#include "State.h"
 
-class State
+template <typename ActorType>
+class FSM
 {
+private: 
+	ActorType* owner;
+	State* currentState;
+	State* previousState;
 public:
-	virtual void Enter(Actor*) = 0;
-	virtual void Execute(Actor*) = 0;
-	virtual void Exit(Actor*) = 0;
-};
+	FSM(ActorType* owner) : owner(owner), currentState(nullptr), previousState(nullptr){}
 
-class State_Sleep :public State
-{
-
-public:
-	virtual void Enter(Actor* actor);
-	virtual void Execute(Actor* actor);
-	virtual void Exit(Actor* actor);
-};
-
-class State_Eat :public State
-{
-
-public:
-	virtual void Enter(Actor* actor);
-	virtual void Execute(Actor* actor);
-	virtual void Exit(Actor* actor);
+	void ChangeState(State* newState)
+	{
+		if (currentState)
+		{
+			currentState->Exit(owner);
+		}
+		delete previousState; //if previous state is not needed. delete it before assigning the state we are moving away from
+		//as the new previouState
+		previousState = currentState;
+		currentState = newState;
+		if (currentState)
+		{
+			currentState->Enter(owner);
+		}
+	}
+	void Update()
+	{
+		if (currentState)
+		{
+			currentState->Execute(owner);
+		}
+	}
+	//bool IsInState()
 };
