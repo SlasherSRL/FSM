@@ -7,11 +7,11 @@ int main()
 {
 	auto lastTime = std::chrono::high_resolution_clock::now();
 	auto currentTime = lastTime;
-	float TPS = 60.0f;
+	float TPS = 20.0f;
 	const float timePerTick = 1.0f/TPS;
 	float tick = 0.0;
-
-	cout << timePerTick<<endl;
+	int tickCounter = 0;
+	
 	Actor steve(1);
 	//Actor Dave(2);
 	
@@ -29,9 +29,12 @@ int main()
 			float deltaTime = tick;
 			tick -= timePerTick;
 			steve.Update();
-			 std::cout << "Hunger: " << steve.GetHunger()
-                     		 << ", Thirst: " << steve.GetThirst()
-                     		 << ", Energy: " << steve.GetEnergy() << '\n';
+
+			tickCounter++;
+			 std::cout << "Tick"<<tickCounter<<" :Hunger: " << steve.GetHunger()
+                       << ", Thirst: " << steve.GetThirst()
+                       << ", Energy: " << steve.GetEnergy() << '\n';
+			 std::cout << "Steve is at" << LocationToString(steve.GetCurrentLocation())<<endl;
 			
 		}
 
