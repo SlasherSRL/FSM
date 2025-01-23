@@ -10,6 +10,7 @@ enum class Location
     WALMART,
     OUTSIDE,
     PARK,
+    BAR,
     GYM
 };
 std::string LocationToString(Location location);

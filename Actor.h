@@ -14,22 +14,20 @@ private:
 
   
     int money;
+
     float thirst;
-    bool isThirsty;
-
+ 
     float hunger;
-    bool isHungry;
-
+    
     float energy;
-    bool isTired;
-
+ 
     float socialized;
-    bool needsSocializing;
-    
-    
 
-    int food;
+    int food; // amount of food the actor has available to eat
+    int giftCards;
 
+    bool isDead;
+    
     Location currentLocation;
     Job job;
     FSM<Actor>* stateMachine;
@@ -51,6 +49,15 @@ public:
     float GetEnergy()const;
     int GetMoney()const;
     float GetSocialized()const;
+    int GetFood()const;
+    int GetGiftCards()const;
+    bool IsDead()const;
+
+    void DecreaseFood(int amount);
+    void IncreaseFood(int amount);
+
+    void DecreaseGiftCards(int amount);
+    void IncreaseGiftCards(int amount);
 
     void DecreaseHunger(float amount);
     void IncreaseHunger(float amount);

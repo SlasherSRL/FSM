@@ -31,10 +31,58 @@ public:
 	virtual void Exit(Actor* actor);
 };
 
-class State_Work :public State
+class State_PilotWork :public State
 {
 public:
 	virtual void Enter(Actor* actor);
 	virtual void Execute(Actor* actor);
 	virtual void Exit(Actor* actor);
 };
+class State_OfficeWork :public State
+{
+public:
+	virtual void Enter(Actor* actor);
+	virtual void Execute(Actor* actor);
+	virtual void Exit(Actor* actor);
+};
+
+class State_Drink :public State
+{
+public:
+	virtual void Enter(Actor* actor);
+	virtual void Execute(Actor* actor);
+	virtual void Exit(Actor* actor);
+};
+
+class State_Walk :public State
+{
+public:
+	virtual void Enter(Actor* actor);
+	virtual void Execute(Actor* actor);
+	virtual void Exit(Actor* actor);
+};
+
+class State_Party :public State
+{
+public:
+	virtual void Enter(Actor* actor);
+	virtual void Execute(Actor* actor);
+	virtual void Exit(Actor* actor);
+};
+
+class State_Socialize :public State
+{
+public:
+	virtual void Enter(Actor* actor);
+	virtual void Execute(Actor* actor);
+	virtual void Exit(Actor* actor);
+};
+
+class State_Shopping :public State
+{
+public:
+	virtual void Enter(Actor* actor);
+	virtual void Execute(Actor* actor);
+	virtual void Exit(Actor* actor);
+};
+

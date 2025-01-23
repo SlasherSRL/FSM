@@ -7,7 +7,7 @@ int main()
 {
 	auto lastTime = std::chrono::high_resolution_clock::now();
 	auto currentTime = lastTime;
-	float TPS = 20.0f;
+	float TPS = 500.0f;
 	const float timePerTick = 1.0f/TPS;
 	float tick = 0.0;
 	int tickCounter = 0;
@@ -28,13 +28,22 @@ int main()
 			//time based actions here
 			float deltaTime = tick;
 			tick -= timePerTick;
-			steve.Update();
+			if (!steve.IsDead())
+			{
+				steve.Update();
+				tickCounter++;
+				std::cout << "Tick" << tickCounter << "| Hunger: " << steve.GetHunger()
+					<< "| Thirst: " << steve.GetThirst()
+					<< "| Energy: " << steve.GetEnergy() << "| Socialized:" << steve.GetSocialized() << "| Money:" << steve.GetMoney() << '\n';
+				std::cout << steve.GetName() << " is at " << LocationToString(steve.GetCurrentLocation()) << endl;
 
-			tickCounter++;
-			 std::cout << "Tick"<<tickCounter<<"| Hunger: " << steve.GetHunger()
-                       << "| Thirst: " << steve.GetThirst()
-                       << "| Energy: " << steve.GetEnergy() << "| Socialized:"<<steve.GetSocialized()<<"| Money:"<<steve.GetMoney()<<'\n';
-			 std::cout << steve.GetName()<<" is at " << LocationToString(steve.GetCurrentLocation())<<endl;
+			}
+			else
+			{
+				looping = false;
+			}
+			
+
 			
 		}
 
