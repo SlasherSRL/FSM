@@ -138,9 +138,13 @@ void State_Eat::Execute(Actor* actor)
 		}
 		else
 		{
-			if (actor->GetMoney() >= 2000)
+			if (actor->GetMoney() >= 2000 && actor->GetFood() <= 3)
 			{
 				actor->ChangeState(new State_Shopping);
+			}
+			else if (actor->GetMoney() >= 2000)
+			{
+				actor->ChangeState(new State_Walk);
 			}
 			else
 			{
@@ -356,9 +360,13 @@ void State_Drink::Execute(Actor* actor)
 		}
 		else
 		{
-			if (actor->GetMoney() >= 2000)
+			if (actor->GetMoney() >= 2000 && actor->GetFood() <= 3)
 			{
 				actor->ChangeState(new State_Shopping);
+			}
+			else if (actor->GetMoney() >= 2000)
+			{
+				actor->ChangeState(new State_Walk);
 			}
 			else
 			{
@@ -389,15 +397,74 @@ void State_Drink::Exit(Actor* actor)
 
 void State_Walk::Enter(Actor* actor)
 {
-
+	actor->SetLocation(Location::OUTSIDE);
+	cout << actor->GetName() << " goes outside" << endl;
+	cout << actor->GetName() << " goes for a walk" << endl;
 }
 void State_Walk::Execute(Actor* actor)
 {
+	
+	
+	if (actor->GetHunger() >= 65 && actor->GetMoney() >= 150 && actor->GetFood() == 0)
+	{
+		actor->DecreaseMoney(150); //eat at restaurant
+		actor->SetLocation(Location::RESTAURANT);
+		actor->ChangeState(new State_Eat);
+	}
+	if (actor->GetHunger() >= 65 && actor->GetFood() > 0)
+	{
+		actor->DecreaseFood(1);
 
+		actor->ChangeState(new State_Eat);
+	}
+	if (actor->GetThirst() >= 50)
+	{
+		actor->ChangeState(new State_Drink);
+
+	}
+	if (actor->GetSocialized() < 40 && actor->GetMoney() >= 200)
+	{
+		actor->DecreaseMoney(200);
+		actor->ChangeState(new State_Party);
+	}
+	if (actor->GetEnergy() <= 20)
+	{
+		actor->ChangeState(new State_Sleep);
+	}
+	else
+	{
+		if (actor->GetMoney() >= 2000&& actor->GetFood() <= 3)
+		{
+			actor->ChangeState(new State_Shopping);
+		}
+		else if(actor->GetMoney()>=2000)
+		{
+			actor->DecreaseEnergy(0.15f);
+			actor->IncreaseThirst(0.3f);
+			actor->IncreaseHunger(0.1f);
+			actor->DecreaseSocialized(0.02f);
+		}
+		else
+		{
+
+			actor->ChooseJob();
+
+			if (actor->GetJob().type == JobType::PILOT)
+			{
+				actor->ChangeState(new State_PilotWork);
+			}
+			if (actor->GetJob().type == JobType::OFFICE_WORKER)
+			{
+				actor->ChangeState(new State_OfficeWork);
+			}
+		}
+
+
+	}
 }
 void State_Walk::Exit(Actor* actor)
 {
-
+	cout << actor->GetName() << " stops walking" << endl;
 }
 
 void State_Party::Enter(Actor* actor)
@@ -442,9 +509,13 @@ void State_Party::Execute(Actor* actor)
 		}
 		else
 		{
-			if (actor->GetMoney() >= 2000)
+			if (actor->GetMoney() >= 2000&& actor->GetFood()<=3)
 			{
 				actor->ChangeState(new State_Shopping);
+			}
+			else if (actor->GetMoney()>=2000)
+			{
+				actor->ChangeState(new State_Walk);
 			}
 			else
 			{
@@ -520,9 +591,10 @@ void State_Shopping::Execute(Actor* actor)
 		}
 		else
 		{
-			if (actor->GetMoney() >= 1500)
+			
+			if (actor->GetMoney() >= 2000)
 			{
-
+				actor->ChangeState(new State_Walk);
 			}
 			else
 			{
