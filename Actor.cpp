@@ -108,6 +108,10 @@ int Actor::GetGiftCards()const
 	return giftCards;
 }
 
+void Actor::PrintStatus()const
+{
+
+}
 
 void Actor::DecreaseFood(int amount)
 {
