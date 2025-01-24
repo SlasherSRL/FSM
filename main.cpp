@@ -32,10 +32,6 @@ int main()
 			{
 				steve.Update();
 				tickCounter++;
-				std::cout << "Tick" << tickCounter << "| Hunger: " << steve.GetHunger()
-					<< "| Thirst: " << steve.GetThirst()
-					<< "| Energy: " << steve.GetEnergy() << "| Socialized:" << steve.GetSocialized() << "| Money:" << steve.GetMoney() << '\n';
-				std::cout << steve.GetName() << " is at " << LocationToString(steve.GetCurrentLocation()) << endl;
 
 			}
 			else
