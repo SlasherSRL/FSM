@@ -1,4 +1,5 @@
 #include "Actor.h"
+#include <iomanip>
 
 Actor::Actor(int id, std::string myName): BaseGameEntity(id)
 {
@@ -51,7 +52,7 @@ void Actor::Update()
 	{
 		stateMachine->Update();
 	}
-	
+	PrintStatus();
 
 
 }
@@ -110,7 +111,19 @@ int Actor::GetGiftCards()const
 
 void Actor::PrintStatus()const
 {
+	std::string locationName = LocationToString(currentLocation);
 
+    	std::cout << "+------------------------------+\n";
+    	std::cout << "|         Actor Status         |\n";
+    	std::cout << "+------------------------------+\n";
+    	std::cout << "| Name       : " << std::setw(16) << name << " |\n";
+    	std::cout << "| Location   : " << std::setw(16) << locationName << " |\n";
+    	std::cout << "| Thirst     : " << std::setw(8) << thirst << " / 100 |\n";
+    	std::cout << "| Hunger     : " << std::setw(8) << hunger << " / 100 |\n";
+    	std::cout << "| Energy     : " << std::setw(8) << energy << " / 100 |\n";
+    	std::cout << "| Socialized : " << std::setw(8) << socialized << " / 100 |\n";
+    	std::cout << "| Money      : $" << std::setw(16) << money << " |\n";
+    	std::cout << "+------------------------------+\n";
 }
 
 void Actor::DecreaseFood(int amount)
