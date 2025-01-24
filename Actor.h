@@ -53,6 +53,8 @@ public:
     int GetGiftCards()const;
     bool IsDead()const;
 
+    void PrintStatus()const;
+
     void DecreaseFood(int amount);
     void IncreaseFood(int amount);
 
