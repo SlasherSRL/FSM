@@ -1,4 +1,12 @@
 #pragma once
+enum class Messagetype
+{
+    REQUEST_MEETUP,
+    ACCEPT_MEETUP,
+    DECLINE_MEETUP,
+    CANCEL_MEETUP,
+    GENERIC_INFO
+};
 
 struct Telegram
 {
