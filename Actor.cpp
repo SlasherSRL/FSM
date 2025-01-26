@@ -124,7 +124,7 @@ void Actor::PrintStatus()const
     	std::cout << "| Socialized : " << std::setw(8) << socialized << " / 100 |\n";
     	std::cout << "| Money      : $" << std::setw(16) << money << " |\n";
 	std::cout << "| Food     : " << std::setw(16) << food << " |\n";
-	std::cout << "| Giftcards      : $" << std::setw(16) << giftcards << " |\n";
+	std::cout << "| Giftcards      : $" << std::setw(16) << giftCards << " |\n";
     	std::cout << "+------------------------------+\n";
 }
 
