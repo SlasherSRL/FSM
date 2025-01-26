@@ -16,7 +16,7 @@ public:
 	virtual ~BaseGameEntity();
 
 	virtual void Update() = 0;
-
+	virtual bool HandleMessage(const Telegram& msg)=0;
 	int GetID()const;
 
 };
