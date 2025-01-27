@@ -5,6 +5,7 @@ enum class Messagetype
     ACCEPT_MEETUP,
     DECLINE_MEETUP,
     CANCEL_MEETUP,
+    CONVERSATION,
     GENERIC_INFO
 };
 
@@ -12,7 +13,7 @@ struct Telegram
 {
     int Sender;
     int Receiver;
-    int Msg;
+    Messagetype Msg;
     double DispatchTime;
     void* ExtraInfo;
 };
