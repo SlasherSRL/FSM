@@ -78,6 +78,11 @@ void State_Sleep::Exit(Actor* actor)
 	cout << actor->GetName() << " decides to work as : " << actor->GetJob().JobName << endl;
 	
 }
+bool State_Sleep::OnMessage(Actor* actor, const Telegram& msg)
+{
+	cout << "Message Received" << endl;
+	return true;
+}
 
 void State_Eat::Enter(Actor* actor)
 {
@@ -172,6 +177,11 @@ void State_Eat::Exit(Actor* actor)
 {
 	cout << actor->GetName() << " stops eating"<<endl;
 }
+bool State_Eat::OnMessage(Actor* actor, const Telegram& msg)
+{
+	cout << "Message Received" << endl;
+	return true;
+}
 
 void State_PilotWork::Enter(Actor* actor) // to change. make seperate states for seperate jobs
 {
@@ -240,7 +250,11 @@ void State_PilotWork::Exit(Actor* actor)
 		cout << actor->GetName() << " changes job to " << actor->GetJob().JobName << endl;
 	}
 }
-
+bool State_PilotWork::OnMessage(Actor* actor, const Telegram& msg)
+{
+	cout << "Message Received" << endl;
+	return true;
+}
 void State_OfficeWork::Enter(Actor* actor) // to change. make seperate states for seperate jobs
 {
 	if (actor->GetCurrentLocation() != actor->GetJob().jobLocation)
@@ -310,7 +324,11 @@ void State_OfficeWork::Exit(Actor* actor)
 		cout << actor->GetName() << " changes job to " << actor->GetJob().JobName << endl;
 	}
 }
-
+bool State_OfficeWork::OnMessage(Actor* actor, const Telegram& msg)
+{
+	cout << "Message Received" << endl;
+	return true;
+}
 void State_Drink::Enter(Actor* actor)
 {
 	if (actor->GetCurrentLocation() != Location::HOME && actor->GetCurrentLocation() != actor->GetJob().jobLocation)
@@ -394,7 +412,11 @@ void State_Drink::Exit(Actor* actor)
 {
 	cout << actor->GetName() << " stops drinking" << endl;
 }
-
+bool State_Drink::OnMessage(Actor* actor, const Telegram& msg)
+{
+	cout << "Message Received" << endl;
+	return true;
+}
 void State_Walk::Enter(Actor* actor)
 {
 	actor->SetLocation(Location::OUTSIDE);
@@ -466,7 +488,11 @@ void State_Walk::Exit(Actor* actor)
 {
 	cout << actor->GetName() << " stops walking" << endl;
 }
-
+bool State_Walk::OnMessage(Actor* actor, const Telegram& msg)
+{
+	cout << "Message Received" << endl;
+	return true;
+}
 void State_Party::Enter(Actor* actor)
 {
 	actor->SetLocation(Location::BAR);
@@ -504,8 +530,9 @@ void State_Party::Execute(Actor* actor)
 		}
 		if (actor->GetSocialized() < 40 && actor->GetMoney() >= 200)
 		{
-			actor->DecreaseMoney(200);
-			actor->ChangeState(new State_Party);
+
+			//actor->DecreaseMoney(200);
+			//actor->ChangeState(new State_Party);
 		}
 		else
 		{
@@ -542,7 +569,11 @@ void State_Party::Exit(Actor* actor)
 {
 	cout << actor->GetName() << " stops partying" << endl;
 }
-
+bool State_Party::OnMessage(Actor* actor, const Telegram& msg)
+{
+	cout << "Message Received" << endl;
+	return true;
+}
 void State_Shopping::Enter(Actor* actor)
 {
 	actor->SetLocation(Location::WALMART);
@@ -620,4 +651,9 @@ void State_Shopping::Execute(Actor* actor)
 void State_Shopping::Exit(Actor* actor)
 {
 	cout << actor->GetName() << " stops shopping" << endl;
+}
+bool State_Shopping::OnMessage(Actor* actor, const Telegram& msg)
+{
+	cout << "Message Received" << endl;
+	return true;
 }

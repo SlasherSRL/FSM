@@ -1,4 +1,5 @@
 #pragma once
+#include "Telegram.h"
 class BaseGameEntity
 {
 

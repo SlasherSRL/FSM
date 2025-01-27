@@ -3,6 +3,7 @@
 #include "Job.h"
 #include "FSM.h"
 #include "Location.h"
+
 #include<iostream>
 
 class Actor :
@@ -39,6 +40,8 @@ public:
     void Update();
 
     void ChangeState(State* state);
+    virtual bool HandleMessage(const Telegram& msg);
+
 
     void ChooseJob();
 

@@ -1,7 +1,7 @@
 #include <iostream>
 #include <chrono>
 #include "Actor.h"
-
+#include "EntityManager.h"
 using namespace std;
 int main()
 {
@@ -13,8 +13,19 @@ int main()
 	int tickCounter = 0;
 	
 	Actor steve(1,"Steve");
-	//Actor Dave(2);
-	
+	EntityManager::Instance()->RegisterActor(&steve);
+	Actor Dave(2,"Dave");
+	EntityManager::Instance()->RegisterActor(&Dave);
+	Dave.DecreaseEnergy(10);// he had a bad sleep
+
+	Actor Meggan(3, "Meggan");
+	EntityManager::Instance()->RegisterActor(&Meggan);
+	Meggan.IncreaseFood(4);// meggan already has some food
+
+	Actor Alice(4, "Alice");
+	EntityManager::Instance()->RegisterActor(&Alice);
+	Alice.DecreaseMoney(1000);// alice is in debt
+
 	
 	//cout << steve.GetID()<<endl;
 	bool looping = true;
@@ -28,9 +39,13 @@ int main()
 			//time based actions here
 			float deltaTime = tick;
 			tick -= timePerTick;
-			if (!steve.IsDead())
+			if (!EntityManager::Instance()->EmptyList())
 			{
-				steve.Update();
+				EntityManager::Instance()->SetTickCounter(tickCounter); 
+				EntityManager::Instance()->ConvertTicksToTime(tickCounter);
+				EntityManager::Instance()->UpdateAll();
+				cout << endl;
+				
 				tickCounter++;
 
 			}
@@ -47,5 +62,6 @@ int main()
 		
 
 	}
+	EntityManager::Instance()->PrintDeadEntities();
 	return 0;
 }

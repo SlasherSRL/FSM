@@ -1,5 +1,6 @@
 #include "Actor.h"
 #include <iomanip>
+#include "EntityManager.h"
 
 Actor::Actor(int id, std::string myName): BaseGameEntity(id)
 {
@@ -31,22 +32,26 @@ void Actor::Update()
 	if (thirst>=100)
 	{
 		isDead = true;
-		cout << GetName() << " died from dehydration";
+		EntityManager::Instance()->RemoveActor(GetID()); 
+		cout << GetName() << " died from dehydration"<<endl;
 	}
 	if (hunger >= 100)
 	{
 		isDead = true;
-		cout << GetName() << " died from starvation";
+		EntityManager::Instance()->RemoveActor(GetID());
+		cout << GetName() << " died from starvation"<<endl;
 	}
 	if (energy <= 0)
 	{
 		isDead = true;
-		cout << GetName() << " died from exhaustion";
+		EntityManager::Instance()->RemoveActor(GetID());
+		cout << GetName() << " died from exhaustion"<<endl;
 	}
 	if (socialized <= 0)
 	{
 		isDead = true;
-		cout << GetName() << " died from depression";
+		EntityManager::Instance()->RemoveActor(GetID());
+		cout << GetName() << " died from depression"<<endl;
 	}
 	if (!isDead)
 	{
@@ -55,6 +60,11 @@ void Actor::Update()
 	PrintStatus();
 
 
+}
+
+bool Actor::HandleMessage(const Telegram& msg)
+{
+	return stateMachine->ForwardMessage(msg);
 }
 bool Actor::IsDead()const
 {
@@ -116,15 +126,15 @@ void Actor::PrintStatus()const
     	std::cout << "+------------------------------+\n";
     	std::cout << "|         Actor Status         |\n";
     	std::cout << "+------------------------------+\n";
-    	std::cout << "| Name       : " << std::setw(16) << name << " |\n";
-    	std::cout << "| Location   : " << std::setw(16) << locationName << " |\n";
-    	std::cout << "| Thirst     : " << std::setw(8) << thirst << " / 100 |\n";
-    	std::cout << "| Hunger     : " << std::setw(8) << hunger << " / 100 |\n";
-    	std::cout << "| Energy     : " << std::setw(8) << energy << " / 100 |\n";
-    	std::cout << "| Socialized : " << std::setw(8) << socialized << " / 100 |\n";
-    	std::cout << "| Money      : $" << std::setw(16) << money << " |\n";
-	std::cout << "| Food     : " << std::setw(16) << food << " |\n";
-	std::cout << "| Giftcards      : $" << std::setw(16) << giftCards << " |\n";
+    	std::cout << "| Name       : " << std::setw(15) << name << " |\n";
+    	std::cout << "| Location   : " << std::setw(15) << locationName << " |\n";
+    	std::cout << "| Thirst     : " << std::setw(9) << thirst << " / 100 |\n";
+    	std::cout << "| Hunger     : " << std::setw(9) << hunger << " / 100 |\n";
+    	std::cout << "| Energy     : " << std::setw(9) << energy << " / 100 |\n";
+    	std::cout << "| Socialized : " << std::setw(9) << socialized << " / 100 |\n";
+    	std::cout << "| Money      : $" << std::setw(14) << money << " |\n";
+		std::cout << "| Food     : " << std::setw(17) << food << " |\n";
+		std::cout << "| Giftcards      : " << std::setw(11) << giftCards << " |\n";
     	std::cout << "+------------------------------+\n";
 }
 

@@ -1,5 +1,6 @@
 #pragma once
 #include "State.h"
+struct Telegram;
 
 template <typename ActorType>
 class FSM
@@ -32,6 +33,14 @@ public:
 		{
 			currentState->Execute(owner);
 		}
+	}
+	bool ForwardMessage(const Telegram& msg)
+	{
+		if (currentState && currentState->OnMessage(owner, msg))
+		{
+			return true;
+		}
+		return false;
 	}
 	//bool IsInState()
 };
