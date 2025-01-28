@@ -2,7 +2,7 @@
 #include "BaseGameEntity.h"
 #include "EntityManager.h"
 
-void MessageDispatcher::DispatchMessage(double delay, int senderID, int receiverID, std::string content, Messagetype type, void* ExtraInfo)
+void MessageDispatcher::DispatchMessage(double delay, int senderID, int receiverID, std::string content, Messagetype type, ExtraInfo extraInfo)
 {
     BaseGameEntity* receiver = EntityManager::Instance()->GetEntityByID(receiverID);
     if (!receiver)
@@ -13,7 +13,7 @@ void MessageDispatcher::DispatchMessage(double delay, int senderID, int receiver
     Telegram telegram;
     telegram.Sender = senderID;
     telegram.Receiver = receiverID;
-    telegram.ExtraInfo = ExtraInfo;
+    telegram.ExtraInfo = extraInfo; 
     telegram.MessageContent = content;
     telegram.MsgType = type;
     telegram.DispatchTime = std::clock() + delay;

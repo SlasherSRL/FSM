@@ -99,6 +99,21 @@ void State_Eat::Enter(Actor* actor)
 	if (LocationToString(actor->GetCurrentLocation()) == "Restaurant")
 	{
 		cout << actor->GetName() << " goes to the Restaurant" << endl; 
+		std::vector<int> actorsNearbyID = EntityManager::Instance()->AtLocation(actor->GetCurrentLocation());
+		if (!actorsNearbyID.empty())
+		{
+			for (auto peopleID : actorsNearbyID)
+			{
+				if (peopleID != actor->GetID())
+				{
+					std::string message = actor->GetName() + ": Hello " + EntityManager::Instance()->GetNameByID(peopleID);
+					ExtraInfo info;
+					info.Respond = true;
+
+					MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), peopleID, message, Messagetype::CONVERSATION, info);
+				}
+			}
+		}
 	}
 	else
 	{
@@ -198,6 +213,17 @@ void State_Eat::Exit(Actor* actor)
 }
 bool State_Eat::OnMessage(Actor* actor, const Telegram& msg)
 {
+	if (msg.MsgType == Messagetype::CONVERSATION)
+	{
+		actor->IncreaseSocialized(2);
+		cout << msg.MessageContent << endl;
+	}
+	else
+	{
+		cout << actor->GetName() << " has received message  from " << EntityManager::Instance()->GetNameByID(msg.Sender) << endl;
+		cout << msg.MessageContent << endl;
+	}
+	
 	cout << "Message Received" << endl;
 	return true;
 }
@@ -216,8 +242,10 @@ void State_PilotWork::Enter(Actor* actor) // to change. make seperate states for
 				if (peopleID != actor->GetID())
 				{
 					std::string message = actor->GetName() + ": Hello " + EntityManager::Instance()->GetNameByID(peopleID);
+					ExtraInfo info;
+					info.Respond = true;
 
-					MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), peopleID, message, Messagetype::CONVERSATION, nullptr);
+					MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), peopleID, message, Messagetype::CONVERSATION,info);
 				}
 			}
 		}
@@ -294,15 +322,20 @@ bool State_PilotWork::OnMessage(Actor* actor, const Telegram& msg)
 	{
 		actor->IncreaseSocialized(2);
 		cout << msg.MessageContent << endl;
+		if (msg.ExtraInfo.Respond)
+		{
+			std::string message = actor->GetName() + ": Hello " + EntityManager::Instance()->GetNameByID(msg.Sender); 
+			ExtraInfo info;
+			info.Respond = false;
+			MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), msg.Sender, message, Messagetype::CONVERSATION, info); 
+		}
 	}
 	else
 	{
 		cout << actor->GetName() << " has received message  from " << EntityManager::Instance()->GetNameByID(msg.Sender) << endl; 
+		cout << msg.MessageContent << endl;
 	}
-	if (msg.ExtraInfo != nullptr)
-	{
-
-	}
+	
 	
 	
 	return true;
@@ -321,8 +354,10 @@ void State_OfficeWork::Enter(Actor* actor) // to change. make seperate states fo
 				if (peopleID != actor->GetID())
 				{
 					std::string message = actor->GetName() + ": Hello " + EntityManager::Instance()->GetNameByID(peopleID);
+					ExtraInfo info;
+					info.Respond = true;
 
-					MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), peopleID, message, Messagetype::CONVERSATION, nullptr);
+					MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), peopleID, message, Messagetype::CONVERSATION, info);
 				}
 			}
 		}
@@ -405,11 +440,9 @@ bool State_OfficeWork::OnMessage(Actor* actor, const Telegram& msg)
 	else
 	{
 		cout << actor->GetName() << " has received message  from " << EntityManager::Instance()->GetNameByID(msg.Sender) << endl;
+		cout << msg.MessageContent << endl; 
 	}
-	if (msg.ExtraInfo != nullptr)
-	{
-
-	} 
+	
 	return true;
 }
 void State_Drink::Enter(Actor* actor)
@@ -508,11 +541,8 @@ bool State_Drink::OnMessage(Actor* actor, const Telegram& msg)
 	
 	
 	cout << actor->GetName() << " has received message  from " << EntityManager::Instance()->GetNameByID(msg.Sender) << endl;
+	cout << msg.MessageContent << endl; 
 	
-	if (msg.ExtraInfo != nullptr)
-	{
-
-	}
 	
 	return true;
 }
@@ -532,8 +562,10 @@ void State_Walk::Enter(Actor* actor)
 			if (peopleID != actor->GetID())
 			{
 				std::string message = actor->GetName() + ": Hello " + EntityManager::Instance()->GetNameByID(peopleID);
+				ExtraInfo info;
+				info.Respond = true;
 
-				MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), peopleID, message, Messagetype::CONVERSATION, nullptr);
+				MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), peopleID, message, Messagetype::CONVERSATION, info);
 			}
 		}
 	}
@@ -621,17 +653,31 @@ bool State_Walk::OnMessage(Actor* actor, const Telegram& msg)
 	else
 	{
 		cout << actor->GetName() << " has received message  from " << EntityManager::Instance()->GetNameByID(msg.Sender) << endl;
+		cout << msg.MessageContent << endl; 
 	}
-	if (msg.ExtraInfo != nullptr)
-	{
-
-	}
+	
 	return true;
 }
 void State_Party::Enter(Actor* actor)
 {
 	actor->SetLocation(Location::BAR);
+
 	cout << actor->GetName() << " goes to party" << endl;
+	std::vector<int> actorsNearbyID = EntityManager::Instance()->AtLocation(actor->GetCurrentLocation()); // should only say hi when first entering place
+	if (!actorsNearbyID.empty())
+	{
+		for (auto peopleID : actorsNearbyID)
+		{
+			if (peopleID != actor->GetID())
+			{
+				std::string message = actor->GetName() + ": Hello " + EntityManager::Instance()->GetNameByID(peopleID);
+				ExtraInfo info;
+				info.Respond = true;
+
+				MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), peopleID, message, Messagetype::CONVERSATION, info);
+			}
+		}
+	}
 }
 void State_Party::Execute(Actor* actor)
 {
@@ -713,7 +759,17 @@ void State_Party::Exit(Actor* actor)
 }
 bool State_Party::OnMessage(Actor* actor, const Telegram& msg)
 {
-	cout << "Message Received" << endl;
+	if (msg.MsgType == Messagetype::CONVERSATION)
+	{
+		actor->IncreaseSocialized(2);
+		cout << msg.MessageContent << endl;
+	}
+	else
+	{
+		cout << actor->GetName() << " has received message  from " << EntityManager::Instance()->GetNameByID(msg.Sender) << endl;
+		cout << msg.MessageContent << endl;
+	}
+	
 	return true;
 }
 void State_Shopping::Enter(Actor* actor)
@@ -730,8 +786,10 @@ void State_Shopping::Enter(Actor* actor)
 			if (peopleID != actor->GetID())
 			{
 				std::string message = actor->GetName() + ": Hello " + EntityManager::Instance()->GetNameByID(peopleID);
+				ExtraInfo info;
+				info.Respond = true;
 
-				MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), peopleID, message, Messagetype::CONVERSATION, nullptr);
+				MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), peopleID, message, Messagetype::CONVERSATION, info);
 			}
 		}
 	}
@@ -826,10 +884,8 @@ bool State_Shopping::OnMessage(Actor* actor, const Telegram& msg)
 	else
 	{
 		cout << actor->GetName() << " has received message  from " << EntityManager::Instance()->GetNameByID(msg.Sender) << endl;
+		cout << msg.MessageContent << endl; 
 	}
-	if (msg.ExtraInfo != nullptr)
-	{
-
-	}
+	
 	return true;
 }

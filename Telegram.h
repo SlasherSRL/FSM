@@ -1,5 +1,8 @@
 #pragma once
 #include <string>
+#include "Job.h"
+#include "Location.h"
+
 enum class Messagetype
 {
     REQUEST_MEETUP,
@@ -10,6 +13,13 @@ enum class Messagetype
     GENERIC_INFO
 };
 
+struct ExtraInfo
+{
+    int timeTick;
+    Location spot;
+    bool Respond;
+};
+
 struct Telegram
 {
     int Sender;
@@ -17,5 +27,5 @@ struct Telegram
     Messagetype MsgType;
     double DispatchTime;
     std::string MessageContent;
-    void* ExtraInfo;
+    ExtraInfo ExtraInfo;
 };

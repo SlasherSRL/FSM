@@ -17,7 +17,7 @@ private:
 public:
 	static MessageDispatcher* Instance();
 
-	void DispatchMessage(double delay, int senderID, int receiverID, std::string content, Messagetype msg, void* Extrainfo);
+	void DispatchMessage(double delay, int senderID, int receiverID, std::string content, Messagetype msg, ExtraInfo extrainfo);
   void DispatchMessageDelayed();
 
 };
