@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 enum class Messagetype
 {
     REQUEST_MEETUP,
@@ -13,7 +14,8 @@ struct Telegram
 {
     int Sender;
     int Receiver;
-    Messagetype Msg;
+    Messagetype MsgType;
     double DispatchTime;
+    std::string MessageContent;
     void* ExtraInfo;
 };

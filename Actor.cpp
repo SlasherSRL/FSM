@@ -32,25 +32,25 @@ void Actor::Update()
 	if (thirst>=100)
 	{
 		isDead = true;
-		EntityManager::Instance()->RemoveActor(GetID()); 
+		EntityManager::Instance()->RemoveEntity(GetID()); 
 		cout << GetName() << " died from dehydration"<<endl;
 	}
 	if (hunger >= 100)
 	{
 		isDead = true;
-		EntityManager::Instance()->RemoveActor(GetID());
+		EntityManager::Instance()->RemoveEntity(GetID());
 		cout << GetName() << " died from starvation"<<endl;
 	}
 	if (energy <= 0)
 	{
 		isDead = true;
-		EntityManager::Instance()->RemoveActor(GetID());
+		EntityManager::Instance()->RemoveEntity(GetID());
 		cout << GetName() << " died from exhaustion"<<endl;
 	}
 	if (socialized <= 0)
 	{
 		isDead = true;
-		EntityManager::Instance()->RemoveActor(GetID());
+		EntityManager::Instance()->RemoveEntity(GetID());
 		cout << GetName() << " died from depression"<<endl;
 	}
 	if (!isDead)

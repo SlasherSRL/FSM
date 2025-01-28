@@ -13,17 +13,17 @@ int main()
 	int tickCounter = 0;
 	
 	Actor steve(1,"Steve");
-	EntityManager::Instance()->RegisterActor(&steve);
+	EntityManager::Instance()->RegisterEntity(&steve);
 	Actor Dave(2,"Dave");
-	EntityManager::Instance()->RegisterActor(&Dave);
+	EntityManager::Instance()->RegisterEntity(&Dave);
 	Dave.DecreaseEnergy(10);// he had a bad sleep
 
 	Actor Meggan(3, "Meggan");
-	EntityManager::Instance()->RegisterActor(&Meggan);
+	EntityManager::Instance()->RegisterEntity(&Meggan);
 	Meggan.IncreaseFood(4);// meggan already has some food
 
 	Actor Alice(4, "Alice");
-	EntityManager::Instance()->RegisterActor(&Alice);
+	EntityManager::Instance()->RegisterEntity(&Alice);
 	Alice.DecreaseMoney(1000);// alice is in debt
 
 	

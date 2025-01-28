@@ -46,7 +46,7 @@ public:
     void ChooseJob();
 
     Job GetJob()const;
-    std::string GetName()const;
+    std::string GetName()const override;
     float GetHunger()const; 
     float GetThirst()const; 
     float GetEnergy()const;

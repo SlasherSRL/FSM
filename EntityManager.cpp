@@ -5,13 +5,28 @@ EntityManager* EntityManager::Instance()
 	static EntityManager instance;
 	return &instance;
 }
-
-void EntityManager::RegisterActor(Actor* actor)
+std::vector<int> EntityManager::AtLocation(Location loc)
 {
-	Entities.emplace_back(actor->GetID(), actor->GetName(), actor);
+	std::vector<int> ids;
+
+	for (auto& entity : Entities) {
+		
+		BaseGameEntity* ent = std::get<2>(entity);
+		Actor* actor =(Actor*)(ent); // Entities are stored as BaseGameEntities. Cast to actor to get
+
+		if (actor && actor->GetCurrentLocation() == loc) {
+			ids.push_back(actor->GetID());
+		}
+	}
+
+	return ids;
+}
+void EntityManager::RegisterEntity(BaseGameEntity* entity)
+{
+	Entities.emplace_back(entity->GetID(), entity->GetName(), entity);
 }
 
-void EntityManager::RemoveActor(int id)
+void EntityManager::RemoveEntity(int id)
 {
 	auto it = std::find_if(Entities.begin(), Entities.end(),
 		[id](const auto& entity) { return std::get<0>(entity) == id; });
@@ -27,7 +42,7 @@ void EntityManager::SetTickCounter(int tick)
 {
 	tickCounter = tick;
 }
-Actor* EntityManager::GetActorByID(int id)
+BaseGameEntity* EntityManager::GetEntityByID(int id)
 {
 	auto it = std::find_if(Entities.begin(), Entities.end(),
 		[id](const auto& entity) { return std::get<0>(entity) == id; });
@@ -91,4 +106,9 @@ void EntityManager::ConvertTicksToTime(int tickCounter) {
 
 	std::cout << std::resetiosflags(std::ios::adjustfield)      // Reset alignment
 		<< std::setfill(' ');
+}
+
+int EntityManager::GetTick()
+{
+	return tickCounter;
 }

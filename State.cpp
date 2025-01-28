@@ -1,6 +1,9 @@
 #include "State.h"
 #include "Actor.h"
 #include <iostream>
+#include "EntityManager.h"
+#include "MessageDispatcher.h"
+
 using namespace std;
 void State_Sleep::Enter(Actor* actor)
 {
@@ -19,28 +22,33 @@ void State_Sleep::Execute(Actor* actor)
 			actor->DecreaseMoney(150); //eat at restaurant
 			actor->SetLocation(Location::RESTAURANT);
 			actor->ChangeState(new State_Eat);
+			return;
 		}
 		if (actor->GetHunger() >= 65 && actor->GetFood() > 0)
 		{
 			actor->DecreaseFood(1);
 			
 			actor->ChangeState(new State_Eat);
+			return;
 		}
 		if (actor->GetThirst() >= 50)
 		{
 			actor->ChangeState(new State_Drink);
+			return;
 
 		}
 		if (actor->GetSocialized() < 40 && actor->GetMoney() >= 200)
 		{
 			actor->DecreaseMoney(200);
 			actor->ChangeState(new State_Party);
+			return;
 		}
 		else
 		{
 			if (actor->GetMoney() >= 2000)
 			{
 				actor->ChangeState(new State_Shopping);
+				return;
 			}
 			else
 			{
@@ -50,10 +58,12 @@ void State_Sleep::Execute(Actor* actor)
 				if (actor->GetJob().type == JobType::PILOT)
 				{
 					actor->ChangeState(new State_PilotWork);
+					return;
 				}
 				if (actor->GetJob().type == JobType::OFFICE_WORKER)
 				{
 					actor->ChangeState(new State_OfficeWork);
+					return;
 				}
 			}
 			
@@ -105,6 +115,9 @@ void State_Eat::Enter(Actor* actor)
 
 	}
 	
+	
+	
+	
 	cout << actor->GetName() << " starts eating" << endl;
 
 	
@@ -131,25 +144,29 @@ void State_Eat::Execute(Actor* actor)
 		{
 			actor->DecreaseMoney(200);
 			actor->ChangeState(new State_Party);
+			return;
 		}
 		if (actor->GetThirst() >= 50)
 		{
 			actor->ChangeState(new State_Drink);
-
+			return;
 		}
 		if (actor->GetEnergy() <= 20)
 		{
 			actor->ChangeState(new State_Sleep);
+			return;
 		}
 		else
 		{
 			if (actor->GetMoney() >= 2000 && actor->GetFood() <= 3)
 			{
 				actor->ChangeState(new State_Shopping);
+				return;
 			}
 			else if (actor->GetMoney() >= 2000)
 			{
 				actor->ChangeState(new State_Walk);
+				return;
 			}
 			else
 			{
@@ -163,10 +180,12 @@ void State_Eat::Execute(Actor* actor)
 				if (actor->GetJob().type == JobType::PILOT)
 				{
 					actor->ChangeState(new State_PilotWork);
+					return;
 				}
 				if (actor->GetJob().type == JobType::OFFICE_WORKER)
 				{
 					actor->ChangeState(new State_OfficeWork);
+					return;
 				}
 			}
 		}
@@ -189,6 +208,19 @@ void State_PilotWork::Enter(Actor* actor) // to change. make seperate states for
 	{
 		actor->SetLocation(actor->GetJob().jobLocation);
 		cout << actor->GetName() << " goes to the airport to work" << endl;
+		std::vector<int> actorsNearbyID = EntityManager::Instance()->AtLocation(actor->GetCurrentLocation());
+		if (!actorsNearbyID.empty())
+		{
+			for (auto peopleID : actorsNearbyID)
+			{
+				if (peopleID != actor->GetID())
+				{
+					std::string message = actor->GetName() + ": Hello " + EntityManager::Instance()->GetNameByID(peopleID);
+
+					MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), peopleID, message, Messagetype::CONVERSATION, nullptr);
+				}
+			}
+		}
 	}
 	
 	cout << actor->GetName() << " does work as a pilot"<<endl;
@@ -207,26 +239,31 @@ void State_PilotWork::Execute(Actor* actor)
 		actor->DecreaseMoney(150); //buys new food 
 		actor->SetLocation(Location::RESTAURANT); 
 		actor->ChangeState(new State_Eat); 
+		return;
 	}
 	if (actor->GetHunger() >= 65 && actor->GetFood() > 0) 
 	{
 		actor->DecreaseFood(1); 
 	
 		actor->ChangeState(new State_Eat); 
+		return;
 	}
 	if (actor->GetThirst() >= 50) 
 	{
 		actor->ChangeState(new State_Drink); 
+		return;
 
 	}
 	if (actor->GetSocialized() < 40 && actor->GetMoney() >= 200) 
 	{
 		actor->DecreaseMoney(200); 
 		actor->ChangeState(new State_Party); 
+		return;
 	}
 	if (actor->GetEnergy() <= 20)
 	{
 		actor->ChangeState(new State_Sleep);
+		return;
 	}
 	else
 	{
@@ -236,6 +273,7 @@ void State_PilotWork::Execute(Actor* actor)
 		if (actor->GetJob().type == JobType::OFFICE_WORKER)
 		{
 			actor->ChangeState(new State_OfficeWork);
+			return;
 		}
 		
 	}
@@ -252,7 +290,21 @@ void State_PilotWork::Exit(Actor* actor)
 }
 bool State_PilotWork::OnMessage(Actor* actor, const Telegram& msg)
 {
-	cout << "Message Received" << endl;
+	if (msg.MsgType == Messagetype::CONVERSATION)
+	{
+		actor->IncreaseSocialized(2);
+		cout << msg.MessageContent << endl;
+	}
+	else
+	{
+		cout << actor->GetName() << " has received message  from " << EntityManager::Instance()->GetNameByID(msg.Sender) << endl; 
+	}
+	if (msg.ExtraInfo != nullptr)
+	{
+
+	}
+	
+	
 	return true;
 }
 void State_OfficeWork::Enter(Actor* actor) // to change. make seperate states for seperate jobs
@@ -261,9 +313,22 @@ void State_OfficeWork::Enter(Actor* actor) // to change. make seperate states fo
 	{
 		actor->SetLocation(actor->GetJob().jobLocation);
 		cout << actor->GetName() << " goes to the office to work" << endl;
+		std::vector<int> actorsNearbyID = EntityManager::Instance()->AtLocation(actor->GetCurrentLocation()); // should only say hi when first entering place
+		if (!actorsNearbyID.empty())
+		{
+			for (auto peopleID : actorsNearbyID)
+			{
+				if (peopleID != actor->GetID())
+				{
+					std::string message = actor->GetName() + ": Hello " + EntityManager::Instance()->GetNameByID(peopleID);
+
+					MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), peopleID, message, Messagetype::CONVERSATION, nullptr);
+				}
+			}
+		}
 	}
 	
-	cout << actor->GetName() << " Does work as an Office Worker" << endl;
+	cout << actor->GetName() << " does work as an Office Worker" << endl;
 }
 void State_OfficeWork::Execute(Actor* actor)
 {
@@ -280,26 +345,31 @@ void State_OfficeWork::Execute(Actor* actor)
 		actor->DecreaseMoney(150); //buys new food 
 		actor->SetLocation(Location::RESTAURANT);
 		actor->ChangeState(new State_Eat);
+		return;
 	}
 	if (actor->GetHunger() >= 65 && actor->GetFood() > 0)
 	{
 		actor->DecreaseFood(1);
 		
 		actor->ChangeState(new State_Eat);
+		return;
 	}
 	if (actor->GetThirst() >= 50)
 	{
 		actor->ChangeState(new State_Drink);
+		return;
 
 	}
 	if (actor->GetSocialized() < 40 && actor->GetMoney() >= 200)
 	{
 		actor->DecreaseMoney(200);
 		actor->ChangeState(new State_Party);
+		return;
 	}
 	if (actor->GetEnergy() <= 20)
 	{
 		actor->ChangeState(new State_Sleep);
+		return;
 	}
 	else
 	{
@@ -310,6 +380,7 @@ void State_OfficeWork::Execute(Actor* actor)
 		if (actor->GetJob().type == JobType::PILOT)
 		{
 			actor->ChangeState(new State_PilotWork);
+			return;
 		}
 		
 
@@ -326,7 +397,19 @@ void State_OfficeWork::Exit(Actor* actor)
 }
 bool State_OfficeWork::OnMessage(Actor* actor, const Telegram& msg)
 {
-	cout << "Message Received" << endl;
+	if (msg.MsgType == Messagetype::CONVERSATION)
+	{
+		actor->IncreaseSocialized(2); 
+		cout << msg.MessageContent << endl;
+	}
+	else
+	{
+		cout << actor->GetName() << " has received message  from " << EntityManager::Instance()->GetNameByID(msg.Sender) << endl;
+	}
+	if (msg.ExtraInfo != nullptr)
+	{
+
+	} 
 	return true;
 }
 void State_Drink::Enter(Actor* actor)
@@ -360,31 +443,37 @@ void State_Drink::Execute(Actor* actor)
 			actor->DecreaseMoney(150); //buys new food 
 			actor->SetLocation(Location::RESTAURANT);
 			actor->ChangeState(new State_Eat);
+			return;
 		}
 		if (actor->GetHunger() >= 65 && actor->GetFood() > 0)
 		{
 			actor->DecreaseFood(1);
 			
 			actor->ChangeState(new State_Eat);
+			return;
 		}
 		if (actor->GetSocialized() < 40 && actor->GetMoney() >= 200)
 		{
 			actor->DecreaseMoney(200);
 			actor->ChangeState(new State_Party);
+			return;
 		}
 		if (actor->GetEnergy() <= 20)
 		{
 			actor->ChangeState(new State_Sleep);
+			return;
 		}
 		else
 		{
 			if (actor->GetMoney() >= 2000 && actor->GetFood() <= 3)
 			{
 				actor->ChangeState(new State_Shopping);
+				return;
 			}
 			else if (actor->GetMoney() >= 2000)
 			{
 				actor->ChangeState(new State_Walk);
+				return;
 			}
 			else
 			{
@@ -398,10 +487,12 @@ void State_Drink::Execute(Actor* actor)
 				if (actor->GetJob().type == JobType::PILOT)
 				{
 					actor->ChangeState(new State_PilotWork);
+					return;
 				}
 				if (actor->GetJob().type == JobType::OFFICE_WORKER)
 				{
 					actor->ChangeState(new State_OfficeWork);
+					return;
 				}
 			}
 		}
@@ -414,14 +505,38 @@ void State_Drink::Exit(Actor* actor)
 }
 bool State_Drink::OnMessage(Actor* actor, const Telegram& msg)
 {
-	cout << "Message Received" << endl;
+	
+	
+	cout << actor->GetName() << " has received message  from " << EntityManager::Instance()->GetNameByID(msg.Sender) << endl;
+	
+	if (msg.ExtraInfo != nullptr)
+	{
+
+	}
+	
 	return true;
 }
 void State_Walk::Enter(Actor* actor)
 {
 	actor->SetLocation(Location::OUTSIDE);
+
+
 	cout << actor->GetName() << " goes outside" << endl;
 	cout << actor->GetName() << " goes for a walk" << endl;
+
+	std::vector<int> actorsNearbyID = EntityManager::Instance()->AtLocation(actor->GetCurrentLocation());
+	if (!actorsNearbyID.empty())
+	{
+		for (auto peopleID : actorsNearbyID)
+		{
+			if (peopleID != actor->GetID())
+			{
+				std::string message = actor->GetName() + ": Hello " + EntityManager::Instance()->GetNameByID(peopleID);
+
+				MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), peopleID, message, Messagetype::CONVERSATION, nullptr);
+			}
+		}
+	}
 }
 void State_Walk::Execute(Actor* actor)
 {
@@ -432,32 +547,38 @@ void State_Walk::Execute(Actor* actor)
 		actor->DecreaseMoney(150); //eat at restaurant
 		actor->SetLocation(Location::RESTAURANT);
 		actor->ChangeState(new State_Eat);
+		return;
 	}
 	if (actor->GetHunger() >= 65 && actor->GetFood() > 0)
 	{
 		actor->DecreaseFood(1);
 
 		actor->ChangeState(new State_Eat);
+		return;
 	}
 	if (actor->GetThirst() >= 50)
 	{
 		actor->ChangeState(new State_Drink);
+		return;
 
 	}
 	if (actor->GetSocialized() < 40 && actor->GetMoney() >= 200)
 	{
 		actor->DecreaseMoney(200);
 		actor->ChangeState(new State_Party);
+		return;
 	}
 	if (actor->GetEnergy() <= 20)
 	{
 		actor->ChangeState(new State_Sleep);
+		return;
 	}
 	else
 	{
 		if (actor->GetMoney() >= 2000&& actor->GetFood() <= 3)
 		{
 			actor->ChangeState(new State_Shopping);
+			return;
 		}
 		else if(actor->GetMoney()>=2000)
 		{
@@ -474,10 +595,12 @@ void State_Walk::Execute(Actor* actor)
 			if (actor->GetJob().type == JobType::PILOT)
 			{
 				actor->ChangeState(new State_PilotWork);
+				return;
 			}
 			if (actor->GetJob().type == JobType::OFFICE_WORKER)
 			{
 				actor->ChangeState(new State_OfficeWork);
+				return;
 			}
 		}
 
@@ -490,7 +613,19 @@ void State_Walk::Exit(Actor* actor)
 }
 bool State_Walk::OnMessage(Actor* actor, const Telegram& msg)
 {
-	cout << "Message Received" << endl;
+	if (msg.MsgType == Messagetype::CONVERSATION)
+	{
+		actor->IncreaseSocialized(2);
+		cout << msg.MessageContent << endl;
+	}
+	else
+	{
+		cout << actor->GetName() << " has received message  from " << EntityManager::Instance()->GetNameByID(msg.Sender) << endl;
+	}
+	if (msg.ExtraInfo != nullptr)
+	{
+
+	}
 	return true;
 }
 void State_Party::Enter(Actor* actor)
@@ -512,21 +647,24 @@ void State_Party::Execute(Actor* actor)
 			actor->DecreaseMoney(150); //buys new food 
 			actor->SetLocation(Location::RESTAURANT);
 			actor->ChangeState(new State_Eat);
+			return;
 		}
 		if (actor->GetHunger() >= 65 && actor->GetFood() > 0)
 		{
 			actor->DecreaseFood(1);
 			
 			actor->ChangeState(new State_Eat);
+			return;
 		}
 		if (actor->GetThirst() >= 50)
 		{
 			actor->ChangeState(new State_Drink);
-
+			return;
 		}
 		if (actor->GetEnergy() <= 20)
 		{
 			actor->ChangeState(new State_Sleep);
+			return;
 		}
 		if (actor->GetSocialized() < 40 && actor->GetMoney() >= 200)
 		{
@@ -539,10 +677,12 @@ void State_Party::Execute(Actor* actor)
 			if (actor->GetMoney() >= 2000&& actor->GetFood()<=3)
 			{
 				actor->ChangeState(new State_Shopping);
+				return;
 			}
 			else if (actor->GetMoney()>=2000)
 			{
 				actor->ChangeState(new State_Walk);
+				return;
 			}
 			else
 			{
@@ -556,10 +696,12 @@ void State_Party::Execute(Actor* actor)
 				if (actor->GetJob().type == JobType::PILOT)
 				{
 					actor->ChangeState(new State_PilotWork);
+					return;
 				}
 				if (actor->GetJob().type == JobType::OFFICE_WORKER)
 				{
 					actor->ChangeState(new State_OfficeWork);
+					return;
 				}
 			}
 		}
@@ -577,7 +719,22 @@ bool State_Party::OnMessage(Actor* actor, const Telegram& msg)
 void State_Shopping::Enter(Actor* actor)
 {
 	actor->SetLocation(Location::WALMART);
+
 	cout << actor->GetName() << " goes to the store to shop" << endl;
+
+	std::vector<int> actorsNearbyID = EntityManager::Instance()->AtLocation(actor->GetCurrentLocation());
+	if (!actorsNearbyID.empty())
+	{
+		for (auto peopleID : actorsNearbyID)
+		{
+			if (peopleID != actor->GetID())
+			{
+				std::string message = actor->GetName() + ": Hello " + EntityManager::Instance()->GetNameByID(peopleID);
+
+				MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), peopleID, message, Messagetype::CONVERSATION, nullptr);
+			}
+		}
+	}
 }
 void State_Shopping::Execute(Actor* actor)
 {
@@ -599,26 +756,30 @@ void State_Shopping::Execute(Actor* actor)
 			actor->DecreaseMoney(150); //buys new food 
 			actor->SetLocation(Location::RESTAURANT);
 			actor->ChangeState(new State_Eat);
+			return;
 		}
 		if (actor->GetHunger() >= 65 && actor->GetFood() > 0)
 		{
 			actor->DecreaseFood(1);
 			
 			actor->ChangeState(new State_Eat);
+			return;
 		}
 		if (actor->GetThirst() >= 50)
 		{
 			actor->ChangeState(new State_Drink);
-
+			return;
 		}
 		if (actor->GetSocialized() < 40 && actor->GetMoney() >= 200)
 		{
 			actor->DecreaseMoney(200);
 			actor->ChangeState(new State_Party);
+			return;
 		}
 		if (actor->GetEnergy() <= 20)
 		{
 			actor->ChangeState(new State_Sleep);
+			return;
 		}
 		else
 		{
@@ -626,6 +787,7 @@ void State_Shopping::Execute(Actor* actor)
 			if (actor->GetMoney() >= 2000)
 			{
 				actor->ChangeState(new State_Walk);
+				return;
 			}
 			else
 			{
@@ -639,10 +801,12 @@ void State_Shopping::Execute(Actor* actor)
 				if (actor->GetJob().type == JobType::PILOT)
 				{
 					actor->ChangeState(new State_PilotWork);
+					return;
 				}
 				if (actor->GetJob().type == JobType::OFFICE_WORKER)
 				{
 					actor->ChangeState(new State_OfficeWork);
+					return;
 				}
 			}
 		}
@@ -654,6 +818,18 @@ void State_Shopping::Exit(Actor* actor)
 }
 bool State_Shopping::OnMessage(Actor* actor, const Telegram& msg)
 {
-	cout << "Message Received" << endl;
+	if (msg.MsgType == Messagetype::CONVERSATION)
+	{
+		actor->IncreaseSocialized(2);
+		cout << msg.MessageContent << endl;
+	}
+	else
+	{
+		cout << actor->GetName() << " has received message  from " << EntityManager::Instance()->GetNameByID(msg.Sender) << endl;
+	}
+	if (msg.ExtraInfo != nullptr)
+	{
+
+	}
 	return true;
 }

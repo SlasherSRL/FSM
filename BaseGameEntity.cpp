@@ -1,5 +1,5 @@
 #include "BaseGameEntity.h"
-#include <iostream>
+
 BaseGameEntity::BaseGameEntity(int id)
 {
 	SetID(id);
@@ -21,7 +21,10 @@ void BaseGameEntity::SetID(int id)
 		terminate();
 	}
 }
-
+std::string BaseGameEntity::GetName()const
+{
+	 return "Unnamed Entity";
+}
 BaseGameEntity::~BaseGameEntity()
 {
 
