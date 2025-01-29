@@ -1,6 +1,7 @@
 #include "Actor.h"
 #include <iomanip>
 #include "EntityManager.h"
+#include "MessageDispatcher.h"
 
 Actor::Actor(int id, std::string myName): BaseGameEntity(id)
 {
@@ -62,11 +63,45 @@ void Actor::Update()
 	{
 		stateMachine->Update();
 	}
-	//PrintStatus();
+	PrintStatus();
 
 
 }
+void Actor::RequestMeetup()
+{
+	SentMessage(true);
+	std::vector<int> friends = EntityManager::Instance()->GetOtherIDs(GetID());
+	if (!friends.empty())
+	{
+		for (auto id : friends)
+		{
+			std::cout << GetName() << " sends message to " << EntityManager::Instance()->GetNameByID(id) << endl;
+			std::string message = GetName() + ": Hello " + EntityManager::Instance()->GetNameByID(id) + " would you like to go to the " + LocationToString(Location::PARK);
+			ExtraInfo info;
+			info.Respond = true;
+			info.spot = Location::PARK;
+			MessageDispatcher::Instance()->DispatchMessage(0.0, GetID(), id, message, Messagetype::REQUEST_MEETUP, info);
+		}
+	}
+}
+void Actor::Greet()
+{
+	std::vector<int> actorsNearbyID = EntityManager::Instance()->AtLocation(GetCurrentLocation());
+	if (!actorsNearbyID.empty())
+	{
+		for (auto peopleID : actorsNearbyID)
+		{
+			if (peopleID !=GetID())
+			{
+				std::string message = GetName() + ": Hello " + EntityManager::Instance()->GetNameByID(peopleID);
+				ExtraInfo info;
+				info.Respond = true;
 
+				MessageDispatcher::Instance()->DispatchMessage(0.0, GetID(), peopleID, message, Messagetype::CONVERSATION, info);
+			}
+		}
+	}
+}
 bool Actor::HandleMessage(const Telegram& msg)
 {
 	return stateMachine->ForwardMessage(msg);

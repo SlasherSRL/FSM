@@ -44,7 +44,8 @@ public:
     State* GetPreviousState();
     virtual bool HandleMessage(const Telegram& msg);
 
-
+    void RequestMeetup();
+    void Greet();
     void ChooseJob();
 
     Job GetJob()const;

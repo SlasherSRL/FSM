@@ -11,6 +11,7 @@ void State_Sleep::Enter(Actor* actor)
 	cout << actor->GetName() << " goes home" << endl;
 
 	cout << actor->GetName() << " goes to sleep" << endl;
+	actor->SentMessage(false); 
 }
 void State_Sleep::Execute(Actor* actor)
 {
@@ -39,21 +40,8 @@ void State_Sleep::Execute(Actor* actor)
 		}
 		if (actor->GetSocialized() < 40 && !actor->HasSentMessage())
 		{
-			actor->SentMessage(true);
-			std::vector<int> friends = EntityManager::Instance()->GetOtherIDs(actor->GetID());
-			if (!friends.empty())
-			{
-				for (auto id : friends)
-				{
-					std::cout << actor->GetName() << " sends message to " << EntityManager::Instance()->GetNameByID(id) << endl; 
-					std::string message = actor->GetName() + ": Hello " + EntityManager::Instance()->GetNameByID(id)+ " would you like to go to the "+ LocationToString(Location::PARK);
-					ExtraInfo info;
-					info.Respond = true;
-					info.spot = Location::PARK;
-					MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), id, message, Messagetype::REQUEST_MEETUP, info);
-				}
-			}
-			
+			actor->RequestMeetup();
+			return;
 		}
 		if (actor->GetSocialized() < 30 && actor->GetMoney() >= 200)
 		{
@@ -104,12 +92,28 @@ void State_Sleep::Exit(Actor* actor)
 	cout << actor->GetName() << " wakes up feeling good" << endl;
 	
 	cout << actor->GetName() << " decides to work as : " << actor->GetJob().JobName << endl;
-	actor->SentMessage(false);
+	actor->SentMessage(false); 
 	
 }
 bool State_Sleep::OnMessage(Actor* actor, const Telegram& msg)
 {
+
 	cout << actor->GetName() << " has received message  from " << EntityManager::Instance()->GetNameByID(msg.Sender) << endl;
+	if (actor->HasSentMessage())
+	{
+		cout << msg.MessageContent << endl;
+		if (msg.MsgType == Messagetype::ACCEPT_MEETUP)
+		{
+			actor->SetLocation(msg.ExtraInfo.spot);
+			actor->ChangeState(new State_Socialize);
+		}
+	}
+	else
+	{
+		cout << actor->GetName() << " is sleeping" << endl;
+	}
+	
+	
 	return true;
 }
 
@@ -119,21 +123,7 @@ void State_Eat::Enter(Actor* actor)
 	if (LocationToString(actor->GetCurrentLocation()) == "Restaurant")
 	{
 		cout << actor->GetName() << " goes to the Restaurant" << endl; 
-		std::vector<int> actorsNearbyID = EntityManager::Instance()->AtLocation(actor->GetCurrentLocation());
-		if (!actorsNearbyID.empty())
-		{
-			for (auto peopleID : actorsNearbyID)
-			{
-				if (peopleID != actor->GetID())
-				{
-					std::string message = actor->GetName() + ": Hello " + EntityManager::Instance()->GetNameByID(peopleID);
-					ExtraInfo info;
-					info.Respond = true;
-
-					MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), peopleID, message, Messagetype::CONVERSATION, info);
-				}
-			}
-		}
+		actor->Greet();
 	}
 	else
 	{
@@ -176,20 +166,8 @@ void State_Eat::Execute(Actor* actor)
 	{
 		if (actor->GetSocialized() < 40 && !actor->HasSentMessage())
 		{
-			actor->SentMessage(true);
-			std::vector<int> friends = EntityManager::Instance()->GetOtherIDs(actor->GetID());
-			if (!friends.empty())
-			{
-				for (auto id : friends)
-				{
-					std::cout << actor->GetName() << " sends message to " << EntityManager::Instance()->GetNameByID(id) << endl; 
-					std::string message = actor->GetName() + ": Hello " + EntityManager::Instance()->GetNameByID(id) + " would you like to go to the " + LocationToString(Location::PARK);
-					ExtraInfo info;
-					info.Respond = true;
-					info.spot = Location::PARK;
-					MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), id, message, Messagetype::REQUEST_MEETUP, info);
-				}
-			}
+			actor->RequestMeetup();
+			return;
 		}
 		if (actor->GetSocialized() < 30 && actor->GetMoney() >= 200)
 		{
@@ -297,21 +275,7 @@ void State_PilotWork::Enter(Actor* actor) // to change. make seperate states for
 	{
 		actor->SetLocation(actor->GetJob().jobLocation);
 		cout << actor->GetName() << " goes to the airport to work" << endl;
-		std::vector<int> actorsNearbyID = EntityManager::Instance()->AtLocation(actor->GetCurrentLocation());
-		if (!actorsNearbyID.empty())
-		{
-			for (auto peopleID : actorsNearbyID)
-			{
-				if (peopleID != actor->GetID())
-				{
-					std::string message = actor->GetName() + ": Hello " + EntityManager::Instance()->GetNameByID(peopleID);
-					ExtraInfo info;
-					info.Respond = true;
-
-					MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), peopleID, message, Messagetype::CONVERSATION,info);
-				}
-			}
-		}
+		actor->Greet();
 	}
 	
 	cout << actor->GetName() << " does work as a pilot"<<endl;
@@ -347,20 +311,8 @@ void State_PilotWork::Execute(Actor* actor)
 	}
 	if (actor->GetSocialized() < 40 && !actor->HasSentMessage())
 	{
-		actor->SentMessage(true);
-		std::vector<int> friends = EntityManager::Instance()->GetOtherIDs(actor->GetID());
-		if (!friends.empty())
-		{
-			for (auto id : friends)
-			{
-				std::cout << actor->GetName() << " sends message to " << EntityManager::Instance()->GetNameByID(id) << endl;
-				std::string message = actor->GetName() + ": Hello " + EntityManager::Instance()->GetNameByID(id) + " would you like to go to the " + LocationToString(Location::PARK);
-				ExtraInfo info;
-				info.Respond = true;
-				info.spot = Location::PARK;
-				MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), id, message, Messagetype::REQUEST_MEETUP, info);
-			}
-		}
+		actor->RequestMeetup();
+		return;
 	}
 	if (actor->GetSocialized() < 30 && actor->GetMoney() >= 200) 
 	{
@@ -462,21 +414,7 @@ void State_OfficeWork::Enter(Actor* actor) // to change. make seperate states fo
 	{
 		actor->SetLocation(actor->GetJob().jobLocation);
 		cout << actor->GetName() << " goes to the office to work" << endl;
-		std::vector<int> actorsNearbyID = EntityManager::Instance()->AtLocation(actor->GetCurrentLocation()); // should only say hi when first entering place
-		if (!actorsNearbyID.empty())
-		{
-			for (auto peopleID : actorsNearbyID)
-			{
-				if (peopleID != actor->GetID())
-				{
-					std::string message = actor->GetName() + ": Hello " + EntityManager::Instance()->GetNameByID(peopleID);
-					ExtraInfo info;
-					info.Respond = true;
-
-					MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), peopleID, message, Messagetype::CONVERSATION, info);
-				}
-			}
-		}
+		actor->Greet();
 	}
 	
 	cout << actor->GetName() << " does work as an Office Worker" << endl;
@@ -513,20 +451,8 @@ void State_OfficeWork::Execute(Actor* actor)
 	}
 	if (actor->GetSocialized() < 40 && !actor->HasSentMessage())
 	{
-		actor->SentMessage(true);
-		std::vector<int> friends = EntityManager::Instance()->GetOtherIDs(actor->GetID());
-		if (!friends.empty())
-		{
-			for (auto id : friends)
-			{
-				std::cout << actor->GetName() << " sends message to " << EntityManager::Instance()->GetNameByID(id) << endl;
-				std::string message = actor->GetName() + ": Hello " + EntityManager::Instance()->GetNameByID(id) + " would you like to go to the " + LocationToString(Location::PARK);
-				ExtraInfo info;
-				info.Respond = true;
-				info.spot = Location::PARK;
-				MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), id, message, Messagetype::REQUEST_MEETUP, info);
-			}
-		}
+		actor->RequestMeetup();
+		return;
 	}
 	if (actor->GetSocialized() < 30 && actor->GetMoney() >= 200)
 	{
@@ -658,20 +584,8 @@ void State_Drink::Execute(Actor* actor)
 		}
 		if (actor->GetSocialized() < 40 && !actor->HasSentMessage())
 		{
-			actor->SentMessage(true);
-			std::vector<int> friends = EntityManager::Instance()->GetOtherIDs(actor->GetID());
-			if (!friends.empty())
-			{
-				for (auto id : friends)
-				{
-					std::cout << actor->GetName() << " sends message to " << EntityManager::Instance()->GetNameByID(id) << endl; 
-					std::string message = actor->GetName() + ": Hello " + EntityManager::Instance()->GetNameByID(id) + " would you like to go to the " + LocationToString(Location::PARK);
-					ExtraInfo info;
-					info.Respond = true;
-					info.spot = Location::PARK;
-					MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), id, message, Messagetype::REQUEST_MEETUP, info);
-				}
-			}
+			actor->RequestMeetup();
+			return;
 		}
 		if (actor->GetSocialized() < 30 && actor->GetMoney() >= 200)
 		{
@@ -778,25 +692,9 @@ void State_Walk::Enter(Actor* actor)
 {
 	actor->SetLocation(Location::OUTSIDE);
 
-
 	cout << actor->GetName() << " goes outside" << endl;
 	cout << actor->GetName() << " goes for a walk" << endl;
-
-	std::vector<int> actorsNearbyID = EntityManager::Instance()->AtLocation(actor->GetCurrentLocation());
-	if (!actorsNearbyID.empty())
-	{
-		for (auto peopleID : actorsNearbyID)
-		{
-			if (peopleID != actor->GetID())
-			{
-				std::string message = actor->GetName() + ": Hello " + EntityManager::Instance()->GetNameByID(peopleID);
-				ExtraInfo info;
-				info.Respond = true;
-
-				MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), peopleID, message, Messagetype::CONVERSATION, info);
-			}
-		}
-	}
+	actor->Greet();
 }
 void State_Walk::Execute(Actor* actor)
 {
@@ -824,20 +722,7 @@ void State_Walk::Execute(Actor* actor)
 	}
 	if (actor->GetSocialized() < 40 && !actor->HasSentMessage())
 	{
-		actor->SentMessage(true);
-		std::vector<int> friends = EntityManager::Instance()->GetOtherIDs(actor->GetID());
-		if (!friends.empty())
-		{
-			for (auto id : friends)
-			{
-				std::cout << actor->GetName() << " sends message to " << EntityManager::Instance()->GetNameByID(id) << endl;
-				std::string message = actor->GetName() + ": Hello " + EntityManager::Instance()->GetNameByID(id) + " would you like to go to the " + LocationToString(Location::PARK);
-				ExtraInfo info;
-				info.Respond = true;
-				info.spot = Location::PARK;
-				MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), id, message, Messagetype::REQUEST_MEETUP, info);
-			}
-		}
+		actor->RequestMeetup();
 	}
 	if (actor->GetSocialized() < 30 && actor->GetMoney() >= 200)
 	{
@@ -941,23 +826,7 @@ bool State_Walk::OnMessage(Actor* actor, const Telegram& msg)
 void State_Party::Enter(Actor* actor)
 {
 	actor->SetLocation(Location::BAR);
-
-	cout << actor->GetName() << " goes to party" << endl;
-	std::vector<int> actorsNearbyID = EntityManager::Instance()->AtLocation(actor->GetCurrentLocation()); // should only say hi when first entering place
-	if (!actorsNearbyID.empty())
-	{
-		for (auto peopleID : actorsNearbyID)
-		{
-			if (peopleID != actor->GetID())
-			{
-				std::string message = actor->GetName() + ": Hello " + EntityManager::Instance()->GetNameByID(peopleID);
-				ExtraInfo info;
-				info.Respond = true;
-
-				MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), peopleID, message, Messagetype::CONVERSATION, info);
-			}
-		}
-	}
+	actor->Greet();
 }
 void State_Party::Execute(Actor* actor)
 {
@@ -1088,22 +957,8 @@ void State_Shopping::Enter(Actor* actor)
 	actor->SetLocation(Location::WALMART);
 
 	cout << actor->GetName() << " goes to the store to shop" << endl;
-
-	std::vector<int> actorsNearbyID = EntityManager::Instance()->AtLocation(actor->GetCurrentLocation());
-	if (!actorsNearbyID.empty())
-	{
-		for (auto peopleID : actorsNearbyID)
-		{
-			if (peopleID != actor->GetID())
-			{
-				std::string message = actor->GetName() + ": Hello " + EntityManager::Instance()->GetNameByID(peopleID);
-				ExtraInfo info;
-				info.Respond = true;
-
-				MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), peopleID, message, Messagetype::CONVERSATION, info);
-			}
-		}
-	}
+	actor->Greet();
+	
 }
 void State_Shopping::Execute(Actor* actor)
 {
@@ -1141,20 +996,8 @@ void State_Shopping::Execute(Actor* actor)
 		}
 		if (actor->GetSocialized() < 40 && !actor->HasSentMessage())
 		{
-			actor->SentMessage(true);
-			std::vector<int> friends = EntityManager::Instance()->GetOtherIDs(actor->GetID());
-			if (!friends.empty())
-			{
-				for (auto id : friends)
-				{
-					std::cout << actor->GetName() << " sends message to " << EntityManager::Instance()->GetNameByID(id) << endl; 
-					std::string message = actor->GetName() + ": Hello " + EntityManager::Instance()->GetNameByID(id) +  " would you like to go to the " + LocationToString(Location::PARK);
-					ExtraInfo info;
-					info.Respond = true;
-					info.spot = Location::PARK;
-					MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), id, message, Messagetype::REQUEST_MEETUP, info);
-				}
-			}
+			actor->RequestMeetup();
+			return;
 		}
 		if (actor->GetSocialized() < 30 && actor->GetMoney() >= 200)
 		{
@@ -1299,6 +1142,24 @@ void State_Socialize::Execute(Actor* actor)
 		}
 		actor->ChangeState(new State_Drink);
 	}
+	if (actor->GetEnergy() <= 20)
+	{
+		std::vector<int> actorsNearbyID = EntityManager::Instance()->AtLocation(actor->GetCurrentLocation());
+		if (!actorsNearbyID.empty())
+		{
+			for (auto peopleID : actorsNearbyID)
+			{
+				if (peopleID != actor->GetID())
+				{
+					std::string message = actor->GetName() + ": Sorry " + EntityManager::Instance()->GetNameByID(peopleID) + "I'm tired I gotta go ";
+					ExtraInfo info;
+					info.Respond = false;
+					MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), peopleID, message, Messagetype::CANCEL_MEETUP, info);
+				}
+			}
+		}
+		actor->ChangeState(new State_Sleep);
+	}
 	if (actor->GetSocialized() >= 80)
 	{
 
@@ -1344,6 +1205,8 @@ bool State_Socialize::OnMessage(Actor* actor, const Telegram& msg)
 	}
 	else
 	{
+		cout << actor->GetName() << " has received message  from " << EntityManager::Instance()->GetNameByID(msg.Sender) << endl;
+		cout << msg.MessageContent << endl;
 		if (msg.MsgType == Messagetype::CANCEL_MEETUP)
 		{
 			State* state = actor->GetPreviousState();
@@ -1351,6 +1214,15 @@ bool State_Socialize::OnMessage(Actor* actor, const Telegram& msg)
 				
 			
 		}
+		if (msg.MsgType == Messagetype::REQUEST_MEETUP)
+		{
+			std::string message = actor->GetName() + ": Yeah, I'm already there"; 
+			ExtraInfo info; 
+			info.Respond = true; 
+			info.spot = msg.ExtraInfo.spot; 
+			MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), msg.Sender, message, Messagetype::ACCEPT_MEETUP, info); 
+		}
+		
 	}
 	return true;
 }
