@@ -28,7 +28,8 @@ private:
     int giftCards;
 
     bool isDead;
-    
+    bool sentMessage;
+
     Location currentLocation;
     Job job;
     FSM<Actor>* stateMachine;
@@ -40,6 +41,7 @@ public:
     void Update();
 
     void ChangeState(State* state);
+    State* GetPreviousState();
     virtual bool HandleMessage(const Telegram& msg);
 
 
@@ -79,8 +81,8 @@ public:
     void IncreaseSocialized(float amount);
     void DecreaseSocialized(float amount);
 
-
-
+    bool HasSentMessage();
+    void SentMessage(bool status);
    
     void SetLocation(Location location);
     Location GetCurrentLocation()const;

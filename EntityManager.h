@@ -16,6 +16,7 @@ public:
 	bool EmptyList();
 
 	std::vector<int> AtLocation(Location loc);
+	std::vector<int> GetOtherIDs(int id);
 	void RegisterEntity(BaseGameEntity* entity);
 	void RemoveEntity(int id);
 

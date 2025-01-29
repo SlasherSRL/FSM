@@ -8,6 +8,7 @@ Actor::Actor(int id, std::string myName): BaseGameEntity(id)
 	stateMachine = new FSM<Actor>(this);
 	name = myName;
 	food = 0;
+	sentMessage = false;
 	currentLocation= Location::HOME;
 	hunger = 0.0f;
 	thirst=0.0f;
@@ -20,6 +21,10 @@ Actor::Actor(int id, std::string myName): BaseGameEntity(id)
 void Actor::ChangeState(State* state)
 {
 	stateMachine->ChangeState(state);
+}
+State* Actor::GetPreviousState()
+{
+	return stateMachine->GetPreviousState();
 }
 void Actor::Update()
 {
@@ -57,7 +62,7 @@ void Actor::Update()
 	{
 		stateMachine->Update();
 	}
-	PrintStatus();
+	//PrintStatus();
 
 
 }
@@ -220,5 +225,11 @@ Location Actor::GetCurrentLocation()const
 {
 	return currentLocation;
 }
-
-
+bool Actor::HasSentMessage()
+{
+	return sentMessage;
+}
+void Actor::SentMessage(bool status)
+{
+	sentMessage = status;
+}

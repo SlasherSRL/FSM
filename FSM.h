@@ -18,7 +18,11 @@ public:
 		{
 			currentState->Exit(owner);
 		}
-		delete previousState; //if previous state is not needed. delete it before assigning the state we are moving away from
+		if (newState != previousState)
+		{
+			delete previousState; //if previous state is not needed. delete it before assigning the state we are moving away from
+		}
+		
 		//as the new previouState
 		previousState = currentState;
 		currentState = newState;
@@ -41,6 +45,11 @@ public:
 			return true;
 		}
 		return false;
+	}
+
+	State* GetPreviousState()
+	{
+		return previousState;
 	}
 	//bool IsInState()
 };

@@ -90,7 +90,7 @@ void State_Sleep::Execute(Actor* actor)
 	}
 	else
 	{
-		//cout << actor->GetName() << " is sleeping" << endl;
+		cout << actor->GetName() << " is sleeping" << endl;
 		actor->IncreaseEnergy(80.0f/480.0f);
 		actor->IncreaseHunger(1.0f / 20.0f);
 		actor->IncreaseThirst(1.0f / 30.0f);
@@ -273,7 +273,7 @@ bool State_Eat::OnMessage(Actor* actor, const Telegram& msg)
 			actor->SetLocation(msg.ExtraInfo.spot);
 			actor->ChangeState(new State_Socialize);
 		}
-		else if(msg.MsgType == Messagetype::ACCEPT_MEETUP)
+		else
 		{
 			if (msg.ExtraInfo.Respond)
 			{

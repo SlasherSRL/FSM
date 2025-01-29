@@ -112,3 +112,17 @@ int EntityManager::GetTick()
 {
 	return tickCounter;
 }
+std::vector<int> EntityManager::GetOtherIDs(int id)
+{
+	std::vector<int> ids;
+	for (auto& entity : Entities)
+	{
+		if (std::get<0>(entity) != id)
+		{
+			ids.push_back(std::get<0>(entity));
+		}
+		
+	}
+
+	return ids;
+}
