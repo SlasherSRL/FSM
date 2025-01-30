@@ -962,8 +962,12 @@ void State_Shopping::Enter(Actor* actor)
 }
 void State_Shopping::Execute(Actor* actor)
 {
-	actor->DecreaseMoney(50);// each item is 50
-	actor->IncreaseFood(1);
+	if (actor->GetFood() <= 8)
+	{
+		actor->DecreaseMoney(50);// each item is 50 
+		actor->IncreaseFood(1); 
+	}
+	
 	actor->DecreaseMoney(100);// 100 per gift card
 	actor->IncreaseGiftCards(1);
 
@@ -973,7 +977,7 @@ void State_Shopping::Execute(Actor* actor)
 	
 
 
-	if (actor->GetMoney()<=400||actor->GetFood()>8) // he doesnt have much money left or if he has bought enough
+	if (actor->GetMoney()<=400) // he doesnt have much money left
 	{
 		if (actor->GetHunger() >= 65 && actor->GetMoney() >= 150 && actor->GetFood() == 0)
 		{
@@ -1013,30 +1017,23 @@ void State_Shopping::Execute(Actor* actor)
 		else
 		{
 			
-			if (actor->GetMoney() >= 2000)
+			Job oldJob = actor->GetJob();
+
+			actor->ChooseJob();
+			if (actor->GetJob().type != oldJob.type)
 			{
-				actor->ChangeState(new State_Walk);
+				cout << actor->GetName() << " changes job to " << actor->GetJob().JobName << endl;
+			}
+			if (actor->GetJob().type == JobType::PILOT)
+			{
+				actor->ChangeState(new State_PilotWork);
 				return;
 			}
-			else
+			if (actor->GetJob().type == JobType::OFFICE_WORKER)
 			{
-				Job oldJob = actor->GetJob();
-
-				actor->ChooseJob();
-				if (actor->GetJob().type != oldJob.type)
-				{
-					cout << actor->GetName() << " changes job to " << actor->GetJob().JobName << endl;
-				}
-				if (actor->GetJob().type == JobType::PILOT)
-				{
-					actor->ChangeState(new State_PilotWork);
-					return;
-				}
-				if (actor->GetJob().type == JobType::OFFICE_WORKER)
-				{
-					actor->ChangeState(new State_OfficeWork);
-					return;
-				}
+				actor->ChangeState(new State_OfficeWork);
+				return;
+			
 			}
 		}
 	}

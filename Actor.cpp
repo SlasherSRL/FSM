@@ -63,7 +63,11 @@ void Actor::Update()
 	{
 		stateMachine->Update();
 	}
-	PrintStatus();
+	
+	if (EntityManager::Instance()->GetTick() % 20 == 0)
+	{
+		PrintStatus();
+	}
 
 
 }

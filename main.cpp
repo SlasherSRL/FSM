@@ -7,7 +7,7 @@ int main()
 {
 	auto lastTime = std::chrono::high_resolution_clock::now();
 	auto currentTime = lastTime;
-	float TPS = 5000.0f;
+	float TPS = 5.0f;
 	const float timePerTick = 1.0f/TPS;
 	float tick = 0.0;
 	int tickCounter = 0;
@@ -54,7 +54,7 @@ int main()
 				looping = false;
 			}
 			
-
+			
 			
 		}
 
