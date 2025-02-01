@@ -5,9 +5,10 @@
 class EntityManager
 {
 private:
-	std::vector < std::tuple<int, std::string,BaseGameEntity*>> Entities;
-	std::vector < std::tuple<std::string,int>> DeadEntities;
-	EntityManager(){}
+	//vectors for holding information related to Entities, alive or dead
+	std::vector < std::tuple<int, std::string,BaseGameEntity*>> Entities; //Alive
+	std::vector < std::tuple<std::string,int>> DeadEntities;//dead, this simply holds string(name) and int(tick they died on)
+	EntityManager(); 
 	int tickCounter;
 
 public:

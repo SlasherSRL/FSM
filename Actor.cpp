@@ -19,10 +19,12 @@ Actor::Actor(int id, std::string myName): BaseGameEntity(id)
 	isDead = false;
 	ChangeState(new State_Sleep());
 }
+//changes state
 void Actor::ChangeState(State* state)
 {
 	stateMachine->ChangeState(state);
 }
+//Gets previous state
 State* Actor::GetPreviousState()
 {
 	return stateMachine->GetPreviousState();
@@ -88,7 +90,7 @@ void Actor::RequestMeetup() //default message for meeting up at the park
 		}
 	}
 }
-void Actor::Greet()
+void Actor::Greet() // says hello to any person in the same location as you
 {
 	std::vector<int> actorsNearbyID = EntityManager::Instance()->AtLocation(GetCurrentLocation());
 	if (!actorsNearbyID.empty())
@@ -106,7 +108,7 @@ void Actor::Greet()
 		}
 	}
 }
-bool Actor::HandleMessage(const Telegram& msg)
+bool Actor::HandleMessage(const Telegram& msg) //Forwards message to state for handling dependent on state
 {
 	return stateMachine->ForwardMessage(msg);
 }
@@ -162,7 +164,7 @@ int Actor::GetGiftCards()const
 {
 	return giftCards;
 }
-
+//prints actor status
 void Actor::PrintStatus()const
 {
 	std::string locationName = LocationToString(currentLocation);

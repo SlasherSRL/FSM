@@ -5,6 +5,10 @@ EntityManager* EntityManager::Instance()
 	static EntityManager instance;
 	return &instance;
 }
+EntityManager::EntityManager()
+{
+	tickCounter = 0;
+}
 std::vector<int> EntityManager::AtLocation(Location loc)
 {
 	std::vector<int> ids;
@@ -23,11 +27,12 @@ std::vector<int> EntityManager::AtLocation(Location loc)
 
 	return ids;
 }
+//adds an entity to the alive entity vector (Entities)
 void EntityManager::RegisterEntity(BaseGameEntity* entity)
 {
 	Entities.emplace_back(entity->GetID(), entity->GetName(), entity);
 }
-
+//removes entity from list of living entities, adds it to the dead enemies
 void EntityManager::RemoveEntity(int id)
 {
 	auto it = std::find_if(Entities.begin(), Entities.end(), //goes through the vector to see if it contains the value we want.
