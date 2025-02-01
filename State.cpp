@@ -9,7 +9,6 @@ void State_Sleep::Enter(Actor* actor)
 {
 	actor->SetLocation(Location::HOME);
 	cout << actor->GetName() << " goes home" << endl;
-
 	cout << actor->GetName() << " goes to sleep" << endl;
 	actor->SentMessage(false); 
 }
@@ -28,7 +27,6 @@ void State_Sleep::Execute(Actor* actor)
 		if (actor->GetHunger() >= 65 && actor->GetFood() > 0)
 		{
 			actor->DecreaseFood(1);
-			
 			actor->ChangeState(new State_Eat);
 			return;
 		}
@@ -36,7 +34,6 @@ void State_Sleep::Execute(Actor* actor)
 		{
 			actor->ChangeState(new State_Drink);
 			return;
-
 		}
 		if (actor->GetSocialized() < 40 && !actor->HasSentMessage())
 		{
@@ -58,9 +55,7 @@ void State_Sleep::Execute(Actor* actor)
 			}
 			else
 			{
-				
 				actor->ChooseJob();
-				
 				if (actor->GetJob().type == JobType::PILOT)
 				{
 					actor->ChangeState(new State_PilotWork);
@@ -72,8 +67,6 @@ void State_Sleep::Execute(Actor* actor)
 					return;
 				}
 			}
-			
-			
 		}
 	}
 	else
@@ -84,20 +77,15 @@ void State_Sleep::Execute(Actor* actor)
 		actor->IncreaseThirst(1.0f / 30.0f);
 		actor->DecreaseSocialized(1.0f/20.0f);
 	}
-	
-
 }
 void State_Sleep::Exit(Actor* actor)
 {
 	cout << actor->GetName() << " wakes up feeling good" << endl;
-	
 	cout << actor->GetName() << " decides to work as : " << actor->GetJob().JobName << endl;
 	actor->SentMessage(false); 
-	
 }
 bool State_Sleep::OnMessage(Actor* actor, const Telegram& msg)
 {
-
 	cout << actor->GetName() << " has received message  from " << EntityManager::Instance()->GetNameByID(msg.Sender) << endl;
 	if (actor->HasSentMessage())
 	{
@@ -112,8 +100,6 @@ bool State_Sleep::OnMessage(Actor* actor, const Telegram& msg)
 	{
 		cout << actor->GetName() << " is sleeping" << endl;
 	}
-	
-	
 	return true;
 }
 
@@ -129,23 +115,14 @@ void State_Eat::Enter(Actor* actor)
 	{
 		if (LocationToString(actor->GetCurrentLocation()) == "Home")
 		{
-			
 		}
 		else
 		{
 			actor->SetLocation(Location::HOME); 
 			cout << actor->GetName() << " goes home" << endl;
 		}
-		
-
 	}
-	
-	
-	
-	
 	cout << actor->GetName() << " starts eating" << endl;
-
-	
 }
 void State_Eat::Execute(Actor* actor)
 {
@@ -200,7 +177,6 @@ void State_Eat::Execute(Actor* actor)
 			else
 			{
 				Job oldJob = actor->GetJob();
-
 				actor->ChooseJob();
 				if (actor->GetJob().type != oldJob.type)
 				{
@@ -244,7 +220,6 @@ bool State_Eat::OnMessage(Actor* actor, const Telegram& msg)
 				info.Respond = false;
 				MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), msg.Sender, message, Messagetype::DECLINE_MEETUP, info);
 			}
-		
 		}
 		if (msg.MsgType == Messagetype::ACCEPT_MEETUP&&actor->GetHunger()<=15.0f)
 		{
@@ -261,10 +236,7 @@ bool State_Eat::OnMessage(Actor* actor, const Telegram& msg)
 				MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), msg.Sender, message, Messagetype::CANCEL_MEETUP, info);
 			}
 		}
-
 	}
-	
-	
 	return true;
 }
 
@@ -277,13 +249,10 @@ void State_PilotWork::Enter(Actor* actor) // to change. make seperate states for
 		cout << actor->GetName() << " goes to the airport to work" << endl;
 		actor->Greet();
 	}
-	
 	cout << actor->GetName() << " does work as a pilot"<<endl;
 }
 void State_PilotWork::Execute(Actor* actor)
-{
-	
-	
+{	
 	actor->IncreaseMoney(actor->GetJob().incomeRate);
 	actor->DecreaseEnergy(actor->GetJob().energyRate);
 	actor->IncreaseHunger(actor->GetJob().hungerRate);
@@ -299,7 +268,6 @@ void State_PilotWork::Execute(Actor* actor)
 	if (actor->GetHunger() >= 65 && actor->GetFood() > 0) 
 	{
 		actor->DecreaseFood(1); 
-	
 		actor->ChangeState(new State_Eat); 
 		return;
 	}
@@ -307,7 +275,6 @@ void State_PilotWork::Execute(Actor* actor)
 	{
 		actor->ChangeState(new State_Drink); 
 		return;
-
 	}
 	if (actor->GetSocialized() < 40 && !actor->HasSentMessage())
 	{
@@ -327,21 +294,16 @@ void State_PilotWork::Execute(Actor* actor)
 	}
 	else
 	{
-
 		actor->ChooseJob();
-			
 		if (actor->GetJob().type == JobType::OFFICE_WORKER)
 		{
 			actor->ChangeState(new State_OfficeWork);
 			return;
 		}
-		
 	}
-	
 }
 void State_PilotWork::Exit(Actor* actor)
 {
-	
 	cout << actor->GetName() << " stops working" << endl;
 	if (actor->GetJob().type != JobType::PILOT)
 	{
@@ -360,7 +322,6 @@ bool State_PilotWork::OnMessage(Actor* actor, const Telegram& msg)
 			ExtraInfo info;
 			info.Respond = false;
 			MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), msg.Sender, message, Messagetype::CONVERSATION, info); 
-			
 		}
 	}
 	else
@@ -369,8 +330,6 @@ bool State_PilotWork::OnMessage(Actor* actor, const Telegram& msg)
 		cout << msg.MessageContent << endl; 
 		if (msg.MsgType == Messagetype::REQUEST_MEETUP)
 		{
-
-			
 			if (msg.ExtraInfo.Respond)
 			{
 				if (actor->GetMoney() > 2000 && actor->GetSocialized() <= 70)
@@ -382,7 +341,6 @@ bool State_PilotWork::OnMessage(Actor* actor, const Telegram& msg)
 					MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), msg.Sender, message, Messagetype::ACCEPT_MEETUP, info);
 					actor->SetLocation(msg.ExtraInfo.spot);
 					actor->ChangeState(new State_Socialize);
-
 				}
 				else
 				{
@@ -391,7 +349,6 @@ bool State_PilotWork::OnMessage(Actor* actor, const Telegram& msg)
 					info.Respond = false;
 					MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), msg.Sender, message, Messagetype::DECLINE_MEETUP, info);
 				}
-
 			}
 		}
 		if (msg.MsgType == Messagetype::ACCEPT_MEETUP)
@@ -399,11 +356,7 @@ bool State_PilotWork::OnMessage(Actor* actor, const Telegram& msg)
 			actor->SetLocation(msg.ExtraInfo.spot);
 			actor->ChangeState(new State_Socialize);
 		}
-
 	}
-	
-	
-	
 	return true;
 }
 
@@ -416,13 +369,10 @@ void State_OfficeWork::Enter(Actor* actor) // to change. make seperate states fo
 		cout << actor->GetName() << " goes to the office to work" << endl;
 		actor->Greet();
 	}
-	
 	cout << actor->GetName() << " does work as an Office Worker" << endl;
 }
 void State_OfficeWork::Execute(Actor* actor)
 {
-
-
 	actor->IncreaseMoney(actor->GetJob().incomeRate);
 	actor->DecreaseEnergy(actor->GetJob().energyRate);
 	actor->IncreaseHunger(actor->GetJob().hungerRate);
@@ -439,7 +389,6 @@ void State_OfficeWork::Execute(Actor* actor)
 	if (actor->GetHunger() >= 65 && actor->GetFood() > 0)
 	{
 		actor->DecreaseFood(1);
-		
 		actor->ChangeState(new State_Eat);
 		return;
 	}
@@ -447,7 +396,6 @@ void State_OfficeWork::Execute(Actor* actor)
 	{
 		actor->ChangeState(new State_Drink);
 		return;
-
 	}
 	if (actor->GetSocialized() < 40 && !actor->HasSentMessage())
 	{
@@ -467,19 +415,13 @@ void State_OfficeWork::Execute(Actor* actor)
 	}
 	else
 	{
-		
-		
 		actor->ChooseJob();
-
 		if (actor->GetJob().type == JobType::PILOT)
 		{
 			actor->ChangeState(new State_PilotWork);
 			return;
 		}
-		
-
 	}
-
 }
 void State_OfficeWork::Exit(Actor* actor)
 {
@@ -491,7 +433,6 @@ void State_OfficeWork::Exit(Actor* actor)
 }
 bool State_OfficeWork::OnMessage(Actor* actor, const Telegram& msg)
 {
-
 	if (msg.MsgType == Messagetype::CONVERSATION)
 	{
 		actor->IncreaseSocialized(2); 
@@ -503,8 +444,6 @@ bool State_OfficeWork::OnMessage(Actor* actor, const Telegram& msg)
 		cout << msg.MessageContent << endl; 
 		if (msg.MsgType == Messagetype::REQUEST_MEETUP)
 		{
-
-			
 			if (msg.ExtraInfo.Respond)
 			{
 				if (actor->GetMoney() > 2000 && actor->GetSocialized() <= 70)
@@ -516,7 +455,6 @@ bool State_OfficeWork::OnMessage(Actor* actor, const Telegram& msg)
 					MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), msg.Sender, message, Messagetype::ACCEPT_MEETUP, info);
 					actor->SetLocation(msg.ExtraInfo.spot); 
 					actor->ChangeState(new State_Socialize);
-
 				}
 				else
 				{
@@ -525,7 +463,6 @@ bool State_OfficeWork::OnMessage(Actor* actor, const Telegram& msg)
 					info.Respond = false;
 					MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), msg.Sender, message, Messagetype::DECLINE_MEETUP, info);
 				}
-
 			}
 		}
 		if (msg.MsgType == Messagetype::ACCEPT_MEETUP)
@@ -533,11 +470,7 @@ bool State_OfficeWork::OnMessage(Actor* actor, const Telegram& msg)
 			actor->SetLocation(msg.ExtraInfo.spot);
 			actor->ChangeState(new State_Socialize);
 		}
-		
 	}
-	
-	
-	
 	return true;
 }
 
@@ -563,9 +496,7 @@ void State_Drink::Execute(Actor* actor)
 	{
 		actor->DecreaseThirst(5);
 	}
-
 	actor->DecreaseSocialized(1.0f / 16.0f);
-
 	if (actor->GetThirst() <= 10)
 	{
 		if (actor->GetHunger() >= 65 && actor->GetMoney() >= 150 && actor->GetFood() == 0)
@@ -578,7 +509,6 @@ void State_Drink::Execute(Actor* actor)
 		if (actor->GetHunger() >= 65 && actor->GetFood() > 0)
 		{
 			actor->DecreaseFood(1);
-			
 			actor->ChangeState(new State_Eat);
 			return;
 		}
@@ -613,7 +543,6 @@ void State_Drink::Execute(Actor* actor)
 			else
 			{
 				Job oldJob = actor->GetJob();
-
 				actor->ChooseJob();
 				if (actor->GetJob().type != oldJob.type)
 				{
@@ -632,7 +561,6 @@ void State_Drink::Execute(Actor* actor)
 			}
 		}
 	}
-	
 }
 void State_Drink::Exit(Actor* actor)
 {
@@ -644,7 +572,6 @@ bool State_Drink::OnMessage(Actor* actor, const Telegram& msg)
 	cout << msg.MessageContent << endl; 
 	if (msg.MsgType == Messagetype::REQUEST_MEETUP)
 	{
-		
 		if (msg.ExtraInfo.Respond)
 		{
 			if (actor->GetMoney() > 2000 && actor->GetSocialized() <= 70)
@@ -656,7 +583,6 @@ bool State_Drink::OnMessage(Actor* actor, const Telegram& msg)
 				MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), msg.Sender, message, Messagetype::ACCEPT_MEETUP, info);
 				actor->SetLocation(msg.ExtraInfo.spot); 
 				actor->ChangeState(new State_Socialize);
-
 			}
 			else
 			{
@@ -665,7 +591,6 @@ bool State_Drink::OnMessage(Actor* actor, const Telegram& msg)
 				info.Respond = false;
 				MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), msg.Sender, message, Messagetype::DECLINE_MEETUP, info);
 			}
-
 		}
 	}
 	if (msg.MsgType == Messagetype::ACCEPT_MEETUP&&actor->GetThirst()<=10.0f)
@@ -680,10 +605,6 @@ bool State_Drink::OnMessage(Actor* actor, const Telegram& msg)
 		info.Respond = false;
 		MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), msg.Sender, message, Messagetype::CANCEL_MEETUP, info);
 	}
-	
-	
-	
-	
 	return true;
 }
 
@@ -691,15 +612,12 @@ bool State_Drink::OnMessage(Actor* actor, const Telegram& msg)
 void State_Walk::Enter(Actor* actor)
 {
 	actor->SetLocation(Location::OUTSIDE);
-
 	cout << actor->GetName() << " goes outside" << endl;
 	cout << actor->GetName() << " goes for a walk" << endl;
 	actor->Greet();
 }
 void State_Walk::Execute(Actor* actor)
 {
-	
-	
 	if (actor->GetHunger() >= 65 && actor->GetMoney() >= 150 && actor->GetFood() == 0)
 	{
 		actor->DecreaseMoney(150); //eat at restaurant
@@ -710,7 +628,6 @@ void State_Walk::Execute(Actor* actor)
 	if (actor->GetHunger() >= 65 && actor->GetFood() > 0)
 	{
 		actor->DecreaseFood(1);
-
 		actor->ChangeState(new State_Eat);
 		return;
 	}
@@ -718,7 +635,6 @@ void State_Walk::Execute(Actor* actor)
 	{
 		actor->ChangeState(new State_Drink);
 		return;
-
 	}
 	if (actor->GetSocialized() < 40 && !actor->HasSentMessage())
 	{
@@ -751,7 +667,6 @@ void State_Walk::Execute(Actor* actor)
 		}
 		else
 		{
-
 			actor->ChooseJob();
 
 			if (actor->GetJob().type == JobType::PILOT)
@@ -765,8 +680,6 @@ void State_Walk::Execute(Actor* actor)
 				return;
 			}
 		}
-
-
 	}
 }
 void State_Walk::Exit(Actor* actor)
@@ -786,8 +699,6 @@ bool State_Walk::OnMessage(Actor* actor, const Telegram& msg)
 		cout << msg.MessageContent << endl;
 		if (msg.MsgType == Messagetype::REQUEST_MEETUP)
 		{
-
-
 			if (msg.ExtraInfo.Respond)
 			{
 				if (actor->GetMoney() > 2000 && actor->GetSocialized() <= 70)
@@ -816,8 +727,6 @@ bool State_Walk::OnMessage(Actor* actor, const Telegram& msg)
 			actor->SetLocation(msg.ExtraInfo.spot);
 			actor->ChangeState(new State_Socialize);
 		}
-
-
 	}
 	return true;
 }
@@ -847,7 +756,6 @@ void State_Party::Execute(Actor* actor)
 		if (actor->GetHunger() >= 65 && actor->GetFood() > 0)
 		{
 			actor->DecreaseFood(1);
-			
 			actor->ChangeState(new State_Eat);
 			return;
 		}
@@ -876,7 +784,6 @@ void State_Party::Execute(Actor* actor)
 			else
 			{
 				Job oldJob = actor->GetJob();
-
 				actor->ChooseJob();
 				if (actor->GetJob().type != oldJob.type)
 				{
@@ -913,8 +820,6 @@ bool State_Party::OnMessage(Actor* actor, const Telegram& msg)
 		cout << msg.MessageContent << endl;
 		if (msg.MsgType == Messagetype::REQUEST_MEETUP)
 		{
-
-
 			if (msg.ExtraInfo.Respond)
 			{
 				if (actor->GetMoney() > 2000 && actor->GetSocialized() <= 70)
@@ -926,7 +831,6 @@ bool State_Party::OnMessage(Actor* actor, const Telegram& msg)
 					MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), msg.Sender, message, Messagetype::ACCEPT_MEETUP, info);
 					actor->SetLocation(msg.ExtraInfo.spot); 
 					actor->ChangeState(new State_Socialize);
-
 				}
 				else
 				{
@@ -935,7 +839,6 @@ bool State_Party::OnMessage(Actor* actor, const Telegram& msg)
 					info.Respond = false;
 					MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), msg.Sender, message, Messagetype::DECLINE_MEETUP, info);
 				}
-
 			}
 		}
 		if (msg.MsgType == Messagetype::ACCEPT_MEETUP)
@@ -943,11 +846,7 @@ bool State_Party::OnMessage(Actor* actor, const Telegram& msg)
 			actor->SetLocation(msg.ExtraInfo.spot);
 			actor->ChangeState(new State_Socialize);
 		}
-
-
 	}
-	
-	
 	return true;
 }
 
@@ -955,10 +854,8 @@ bool State_Party::OnMessage(Actor* actor, const Telegram& msg)
 void State_Shopping::Enter(Actor* actor)
 {
 	actor->SetLocation(Location::WALMART);
-
 	cout << actor->GetName() << " goes to the store to shop" << endl;
 	actor->Greet();
-	
 }
 void State_Shopping::Execute(Actor* actor)
 {
@@ -967,15 +864,11 @@ void State_Shopping::Execute(Actor* actor)
 		actor->DecreaseMoney(50);// each item is 50 
 		actor->IncreaseFood(1); 
 	}
-	
 	actor->DecreaseMoney(100);// 100 per gift card
 	actor->IncreaseGiftCards(1);
-
 	actor->DecreaseEnergy(0.05f);
 	actor->IncreaseThirst(0.2f);
 	actor->IncreaseHunger(0.05f);
-	
-
 
 	if (actor->GetMoney()<=400) // he doesnt have much money left
 	{
@@ -989,7 +882,6 @@ void State_Shopping::Execute(Actor* actor)
 		if (actor->GetHunger() >= 65 && actor->GetFood() > 0)
 		{
 			actor->DecreaseFood(1);
-			
 			actor->ChangeState(new State_Eat);
 			return;
 		}
@@ -1016,9 +908,7 @@ void State_Shopping::Execute(Actor* actor)
 		}
 		else
 		{
-			
 			Job oldJob = actor->GetJob();
-
 			actor->ChooseJob();
 			if (actor->GetJob().type != oldJob.type)
 			{
@@ -1033,7 +923,6 @@ void State_Shopping::Execute(Actor* actor)
 			{
 				actor->ChangeState(new State_OfficeWork);
 				return;
-			
 			}
 		}
 	}
@@ -1055,8 +944,6 @@ bool State_Shopping::OnMessage(Actor* actor, const Telegram& msg)
 		cout << msg.MessageContent << endl;
 		if (msg.MsgType == Messagetype::REQUEST_MEETUP)
 		{
-
-
 			if (msg.ExtraInfo.Respond)
 			{
 				if (actor->GetMoney() > 2000 && actor->GetSocialized() <= 70)
@@ -1068,7 +955,6 @@ bool State_Shopping::OnMessage(Actor* actor, const Telegram& msg)
 					MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), msg.Sender, message, Messagetype::ACCEPT_MEETUP, info);
 					actor->SetLocation(msg.ExtraInfo.spot);
 					actor->ChangeState(new State_Socialize);
-
 				}
 				else
 				{
@@ -1077,7 +963,6 @@ bool State_Shopping::OnMessage(Actor* actor, const Telegram& msg)
 					info.Respond = false;
 					MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), msg.Sender, message, Messagetype::DECLINE_MEETUP, info);
 				}
-
 			}
 		}
 		if (msg.MsgType == Messagetype::ACCEPT_MEETUP)
@@ -1085,10 +970,7 @@ bool State_Shopping::OnMessage(Actor* actor, const Telegram& msg)
 			actor->SetLocation(msg.ExtraInfo.spot);
 			actor->ChangeState(new State_Socialize);
 		}
-
-
 	}
-	
 	return true;
 }
 
@@ -1098,7 +980,6 @@ void State_Socialize::Enter(Actor* actor)
 }
 void State_Socialize::Execute(Actor* actor)
 {
-
 	actor->DecreaseEnergy(0.15f);
 	actor->IncreaseThirst(0.3f);
 	actor->IncreaseHunger(0.1f);
@@ -1159,7 +1040,6 @@ void State_Socialize::Execute(Actor* actor)
 	}
 	if (actor->GetSocialized() >= 80)
 	{
-
 		if (actor->GetMoney() >= 2000) 
 		{
 			actor->ChangeState(new State_Walk); 
@@ -1168,7 +1048,6 @@ void State_Socialize::Execute(Actor* actor)
 		else
 		{
 			Job oldJob = actor->GetJob(); 
-			 
 			actor->ChooseJob(); 
 			if (actor->GetJob().type != oldJob.type) 
 			{ 
@@ -1185,8 +1064,6 @@ void State_Socialize::Execute(Actor* actor)
 				return;
 			}
 		}
-		
-		
 	}
 }
 void State_Socialize::Exit(Actor* actor)

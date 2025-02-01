@@ -58,9 +58,6 @@ int main()
 			
 		}
 
-		
-		
-
 	}
 	EntityManager::Instance()->PrintDeadEntities();
 	return 0;

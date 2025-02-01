@@ -11,7 +11,11 @@ private:
 	State* previousState;
 public:
 	FSM(ActorType* owner) : owner(owner), currentState(nullptr), previousState(nullptr){}
-
+	~FSM() 
+	{
+		delete currentState;
+		delete previousState;
+	}
 	void ChangeState(State* newState)
 	{
 		if (currentState)

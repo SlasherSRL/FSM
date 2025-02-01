@@ -1,10 +1,9 @@
 #include "Job.h"
 Job CreateJob(JobType type)
-{
+{// job rates. 
     Job newJob;
     switch (type)
-    {
-        
+    { 
     case JobType::OFFICE_WORKER:
         newJob.type = type;
         newJob.JobName = "Office Worker";
@@ -14,7 +13,6 @@ Job CreateJob(JobType type)
         newJob.thirstRate = 1 / 3.0f;
         newJob.energyRate = 1 / 15.0f;
         break;
-        
     case JobType::PILOT:
         newJob.type = type;
         newJob.JobName = "Pilot";

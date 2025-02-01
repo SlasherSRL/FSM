@@ -71,7 +71,7 @@ void Actor::Update()
 
 
 }
-void Actor::RequestMeetup()
+void Actor::RequestMeetup() //default message for meeting up at the park
 {
 	SentMessage(true);
 	std::vector<int> friends = EntityManager::Instance()->GetOtherIDs(GetID());

@@ -13,9 +13,6 @@ public:
 	virtual bool OnMessage(Actor*, const Telegram& msg) = 0;
 };
 
-
-
-
 class State_Sleep :public State
 {
 

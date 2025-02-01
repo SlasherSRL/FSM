@@ -9,12 +9,14 @@ std::vector<int> EntityManager::AtLocation(Location loc)
 {
 	std::vector<int> ids;
 
-	for (auto& entity : Entities) {
+	for (auto& entity : Entities) 
+	{
 		
 		BaseGameEntity* ent = std::get<2>(entity);
 		Actor* actor =(Actor*)(ent); // Entities are stored as BaseGameEntities. Cast to actor to get
 
-		if (actor && actor->GetCurrentLocation() == loc) {
+		if (actor && actor->GetCurrentLocation() == loc) 
+		{
 			ids.push_back(actor->GetID());
 		}
 	}
@@ -28,10 +30,10 @@ void EntityManager::RegisterEntity(BaseGameEntity* entity)
 
 void EntityManager::RemoveEntity(int id)
 {
-	auto it = std::find_if(Entities.begin(), Entities.end(),
+	auto it = std::find_if(Entities.begin(), Entities.end(), //goes through the vector to see if it contains the value we want.
 		[id](const auto& entity) { return std::get<0>(entity) == id; });
 
-	if (it != Entities.end()) {
+	if (it != Entities.end()) { // if it didnt reach the end( meaning we found what we wanted), operate on that
 		DeadEntities.emplace_back(GetNameByID(id), tickCounter);
 		Entities.erase(it);
 		
@@ -48,7 +50,7 @@ BaseGameEntity* EntityManager::GetEntityByID(int id)
 		[id](const auto& entity) { return std::get<0>(entity) == id; });
 	
 	
-	return (it != Entities.end()) ? std::get<2>(*it) : nullptr;
+	return (it != Entities.end()) ? std::get<2>(*it) : nullptr; // if it could not find the entity, return nullptr
 }
 
 int EntityManager::GetIDByName(std::string name)
@@ -78,8 +80,10 @@ bool EntityManager::EmptyList()
 
 void EntityManager::UpdateAll()
 {
-	for (auto& entity : Entities) {
-		if (std::get<2>(entity)) {
+	for (auto& entity : Entities) 
+	{
+		if (std::get<2>(entity)) 
+		{
 			std::get<2>(entity)->Update();
 		}
 	}
@@ -94,8 +98,9 @@ void EntityManager::PrintDeadEntities()
 		std::cout << "Entity: " << name << ", Died at Tick: " << deathTick << '\n';
 	}
 }
-
-void EntityManager::ConvertTicksToTime(int tickCounter) {
+// The game runs on a tick timer. here we convert it into actual time.
+void EntityManager::ConvertTicksToTime(int tickCounter) 
+{ 
 	int hours = (tickCounter / 60)+6;
 	int minutes = tickCounter % 60;
 	int days = (hours / 24)+1;
@@ -112,7 +117,7 @@ int EntityManager::GetTick()
 {
 	return tickCounter;
 }
-std::vector<int> EntityManager::GetOtherIDs(int id)
+std::vector<int> EntityManager::GetOtherIDs(int id) // get every ID that isnt your own
 {
 	std::vector<int> ids;
 	for (auto& entity : Entities)

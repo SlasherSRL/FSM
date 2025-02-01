@@ -48,6 +48,8 @@ public:
     void Greet();
     void ChooseJob();
 
+
+    //just a bunch of getters and setters 
     Job GetJob()const;
     std::string GetName()const override;
     float GetHunger()const; 
@@ -61,6 +63,8 @@ public:
 
     void PrintStatus()const;
 
+
+   
     void DecreaseFood(int amount);
     void IncreaseFood(int amount);
 

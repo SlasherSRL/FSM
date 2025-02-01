@@ -10,6 +10,7 @@ void MessageDispatcher::DispatchMessage(double delay, int senderID, int receiver
         std::cerr << "Was not able to find Entity with ID " << receiverID << endl;
         return;
     }
+    //create telegram with correct information
     Telegram telegram;
     telegram.Sender = senderID;
     telegram.Receiver = receiverID;
@@ -29,7 +30,7 @@ void MessageDispatcher::DispatchMessage(double delay, int senderID, int receiver
     }
 
 }
-void MessageDispatcher::DispatchMessageDelayed()
+void MessageDispatcher::DispatchMessageDelayed() // no delayed message implementation yet
 {
   //  double currentTime = std::clock();
   //
@@ -42,7 +43,8 @@ void MessageDispatcher::DispatchMessageDelayed()
   //  }
   // 
 }
-MessageDispatcher* MessageDispatcher::Instance() {
+MessageDispatcher* MessageDispatcher::Instance() 
+{
     static MessageDispatcher instance;
     return &instance;
 }
