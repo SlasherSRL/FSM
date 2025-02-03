@@ -37,7 +37,7 @@ void State_Sleep::Execute(Actor* actor)
 		}
 		if (actor->GetSocialized() < 40 && !actor->HasSentMessage())
 		{
-			actor->RequestMeetup();
+			actor->RequestMeetupNow();
 			return;
 		}
 		if (actor->GetSocialized() < 30 && actor->GetMoney() >= 200)
@@ -86,7 +86,11 @@ void State_Sleep::Exit(Actor* actor)
 }
 bool State_Sleep::OnMessage(Actor* actor, const Telegram& msg)
 {
-	cout << actor->GetName() << " has received message  from " << EntityManager::Instance()->GetNameByID(msg.Sender) << endl;
+	if (actor->GetName() != EntityManager::Instance()->GetNameByID(msg.Sender))
+	{
+		cout << actor->GetName() << " has received message  from " << EntityManager::Instance()->GetNameByID(msg.Sender) << endl;
+	}
+
 	if (actor->HasSentMessage())
 	{
 		cout << msg.MessageContent << endl;
@@ -99,6 +103,11 @@ bool State_Sleep::OnMessage(Actor* actor, const Telegram& msg)
 	else
 	{
 		cout << actor->GetName() << " is sleeping" << endl;
+		if (msg.ExtraInfo.Respond)
+		{
+			std::string message = "Reminder to self to check message in 120 minutes";
+			MessageDispatcher::Instance()->DispatchMessage(120, msg.Sender, msg.Receiver, msg.MessageContent, msg.MsgType, msg.ExtraInfo);
+		}
 	}
 	return true;
 }
@@ -143,7 +152,7 @@ void State_Eat::Execute(Actor* actor)
 	{
 		if (actor->GetSocialized() < 40 && !actor->HasSentMessage())
 		{
-			actor->RequestMeetup();
+			actor->RequestMeetupNow();
 			return;
 		}
 		if (actor->GetSocialized() < 30 && actor->GetMoney() >= 200)
@@ -209,16 +218,23 @@ bool State_Eat::OnMessage(Actor* actor, const Telegram& msg)
 	}
 	else
 	{
-		cout << actor->GetName() << " has received message  from " << EntityManager::Instance()->GetNameByID(msg.Sender) << endl;
+		if (actor->GetName() != EntityManager::Instance()->GetNameByID(msg.Sender))
+		{
+			cout << actor->GetName() << " has received message  from " << EntityManager::Instance()->GetNameByID(msg.Sender) << endl;
+		}
 		cout << msg.MessageContent << endl;
 		if (msg.MsgType == Messagetype::REQUEST_MEETUP)
 		{
 			if (msg.ExtraInfo.Respond)
 			{
-				std::string message = actor->GetName() + ": Sorry " + EntityManager::Instance()->GetNameByID(msg.Sender) + " I am eating food";
-				ExtraInfo info;
-				info.Respond = false;
-				MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), msg.Sender, message, Messagetype::DECLINE_MEETUP, info);
+				if (msg.ExtraInfo.timeTick == EntityManager::Instance()->GetTick())
+				{
+					std::string message = actor->GetName() + ": Sorry " + EntityManager::Instance()->GetNameByID(msg.Sender) + " I am eating food";
+					ExtraInfo info;
+					info.Respond = false;
+					MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), msg.Sender, message, Messagetype::DECLINE_MEETUP, info);
+				}
+
 			}
 		}
 		if (msg.MsgType == Messagetype::ACCEPT_MEETUP&&actor->GetHunger()<=15.0f)
@@ -278,7 +294,7 @@ void State_PilotWork::Execute(Actor* actor)
 	}
 	if (actor->GetSocialized() < 40 && !actor->HasSentMessage())
 	{
-		actor->RequestMeetup();
+		actor->RequestMeetupNow();
 		return;
 	}
 	if (actor->GetSocialized() < 30 && actor->GetMoney() >= 200) 
@@ -326,28 +342,34 @@ bool State_PilotWork::OnMessage(Actor* actor, const Telegram& msg)
 	}
 	else
 	{
-		cout << actor->GetName() << " has received message  from " << EntityManager::Instance()->GetNameByID(msg.Sender) << endl;
+		if (actor->GetName() != EntityManager::Instance()->GetNameByID(msg.Sender))
+		{
+			cout << actor->GetName() << " has received message  from " << EntityManager::Instance()->GetNameByID(msg.Sender) << endl;
+		}
 		cout << msg.MessageContent << endl; 
 		if (msg.MsgType == Messagetype::REQUEST_MEETUP)
 		{
 			if (msg.ExtraInfo.Respond)
 			{
-				if (actor->GetMoney() > 2000 && actor->GetSocialized() <= 70)
+				if (msg.ExtraInfo.timeTick == EntityManager::Instance()->GetTick())
 				{
-					std::string message = actor->GetName() + ": Yeah sure, on my way now.";
-					ExtraInfo info;
-					info.Respond = true;
-					info.spot = msg.ExtraInfo.spot; 
-					MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), msg.Sender, message, Messagetype::ACCEPT_MEETUP, info);
-					actor->SetLocation(msg.ExtraInfo.spot);
-					actor->ChangeState(new State_Socialize);
-				}
-				else
-				{
-					std::string message = actor->GetName() + ": Sorry " + EntityManager::Instance()->GetNameByID(msg.Sender) + " I can't go. I am busy working";
-					ExtraInfo info;
-					info.Respond = false;
-					MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), msg.Sender, message, Messagetype::DECLINE_MEETUP, info);
+					if (actor->GetMoney() > 2000 && actor->GetSocialized() <= 70)
+					{
+						std::string message = actor->GetName() + ": Yeah sure, on my way now.";
+						ExtraInfo info;
+						info.Respond = true;
+						info.spot = msg.ExtraInfo.spot;
+						MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), msg.Sender, message, Messagetype::ACCEPT_MEETUP, info);
+						actor->SetLocation(msg.ExtraInfo.spot);
+						actor->ChangeState(new State_Socialize);
+					}
+					else
+					{
+						std::string message = actor->GetName() + ": Sorry " + EntityManager::Instance()->GetNameByID(msg.Sender) + " I can't go. I am busy working";
+						ExtraInfo info;
+						info.Respond = false;
+						MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), msg.Sender, message, Messagetype::DECLINE_MEETUP, info);
+					}
 				}
 			}
 		}
@@ -399,7 +421,7 @@ void State_OfficeWork::Execute(Actor* actor)
 	}
 	if (actor->GetSocialized() < 40 && !actor->HasSentMessage())
 	{
-		actor->RequestMeetup();
+		actor->RequestMeetupNow();
 		return;
 	}
 	if (actor->GetSocialized() < 30 && actor->GetMoney() >= 200)
@@ -440,31 +462,39 @@ bool State_OfficeWork::OnMessage(Actor* actor, const Telegram& msg)
 	}
 	else
 	{
-		cout << actor->GetName() << " has received message  from " << EntityManager::Instance()->GetNameByID(msg.Sender) << endl; 
+		if (actor->GetName() != EntityManager::Instance()->GetNameByID(msg.Sender))
+		{
+			cout << actor->GetName() << " has received message  from " << EntityManager::Instance()->GetNameByID(msg.Sender) << endl;
+		} 
 		cout << msg.MessageContent << endl; 
 		if (msg.MsgType == Messagetype::REQUEST_MEETUP)
 		{
 			if (msg.ExtraInfo.Respond)
 			{
-				if (actor->GetMoney() > 2000 && actor->GetSocialized() <= 70)
+				if (msg.ExtraInfo.timeTick == EntityManager::Instance()->GetTick())
 				{
-					std::string message = actor->GetName() + ": Yeah sure, on my way now.";
-					ExtraInfo info;
-					info.Respond = true;
-					info.spot = msg.ExtraInfo.spot; 
-					MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), msg.Sender, message, Messagetype::ACCEPT_MEETUP, info);
-					actor->SetLocation(msg.ExtraInfo.spot); 
-					actor->ChangeState(new State_Socialize);
-				}
-				else
-				{
-					std::string message = actor->GetName() + ": Sorry " + EntityManager::Instance()->GetNameByID(msg.Sender) + " I can't go. I am busy working";
-					ExtraInfo info;
-					info.Respond = false;
-					MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), msg.Sender, message, Messagetype::DECLINE_MEETUP, info);
+					if (actor->GetMoney() > 2000 && actor->GetSocialized() <= 70)
+					{
+						std::string message = actor->GetName() + ": Yeah sure, on my way now.";
+						ExtraInfo info;
+						info.Respond = true;
+						info.spot = msg.ExtraInfo.spot;
+						MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), msg.Sender, message, Messagetype::ACCEPT_MEETUP, info);
+						actor->SetLocation(msg.ExtraInfo.spot);
+						actor->ChangeState(new State_Socialize);
+					}
+					else
+					{
+						std::string message = actor->GetName() + ": Sorry " + EntityManager::Instance()->GetNameByID(msg.Sender) + " I can't go. I am busy working";
+						ExtraInfo info;
+						info.Respond = false;
+						MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), msg.Sender, message, Messagetype::DECLINE_MEETUP, info);
+					}
 				}
 			}
 		}
+			
+	
 		if (msg.MsgType == Messagetype::ACCEPT_MEETUP)
 		{
 			actor->SetLocation(msg.ExtraInfo.spot);
@@ -514,7 +544,7 @@ void State_Drink::Execute(Actor* actor)
 		}
 		if (actor->GetSocialized() < 40 && !actor->HasSentMessage())
 		{
-			actor->RequestMeetup();
+			actor->RequestMeetupNow();
 			return;
 		}
 		if (actor->GetSocialized() < 30 && actor->GetMoney() >= 200)
@@ -568,31 +598,40 @@ void State_Drink::Exit(Actor* actor)
 }
 bool State_Drink::OnMessage(Actor* actor, const Telegram& msg)
 {
-	cout << actor->GetName() << " has received message  from " << EntityManager::Instance()->GetNameByID(msg.Sender) << endl;
+	if (actor->GetName() != EntityManager::Instance()->GetNameByID(msg.Sender))
+	{
+		cout << actor->GetName() << " has received message  from " << EntityManager::Instance()->GetNameByID(msg.Sender) << endl;
+	}
 	cout << msg.MessageContent << endl; 
 	if (msg.MsgType == Messagetype::REQUEST_MEETUP)
 	{
 		if (msg.ExtraInfo.Respond)
 		{
-			if (actor->GetMoney() > 2000 && actor->GetSocialized() <= 70)
+			if (msg.ExtraInfo.timeTick == EntityManager::Instance()->GetTick())
 			{
-				std::string message = actor->GetName() + ": Yeah sure, on my way now.";
-				ExtraInfo info;
-				info.Respond = true;
-				info.spot = msg.ExtraInfo.spot; 
-				MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), msg.Sender, message, Messagetype::ACCEPT_MEETUP, info);
-				actor->SetLocation(msg.ExtraInfo.spot); 
-				actor->ChangeState(new State_Socialize);
+				if (actor->GetMoney() > 2000 && actor->GetSocialized() <= 70)
+				{
+					std::string message = actor->GetName() + ": Yeah sure, on my way now.";
+					ExtraInfo info;
+					info.Respond = true;
+					info.spot = msg.ExtraInfo.spot;
+					MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), msg.Sender, message, Messagetype::ACCEPT_MEETUP, info);
+					actor->SetLocation(msg.ExtraInfo.spot);
+					actor->ChangeState(new State_Socialize);
+				}
+				else
+				{
+					std::string message = actor->GetName() + ": Sorry " + EntityManager::Instance()->GetNameByID(msg.Sender) + " I can't go. I don't feel too good";
+					ExtraInfo info;
+					info.Respond = false;
+					MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), msg.Sender, message, Messagetype::DECLINE_MEETUP, info);
+				}
 			}
-			else
-			{
-				std::string message = actor->GetName() + ": Sorry " + EntityManager::Instance()->GetNameByID(msg.Sender) + " I can't go. I don't feel too good";
-				ExtraInfo info;
-				info.Respond = false;
-				MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), msg.Sender, message, Messagetype::DECLINE_MEETUP, info);
-			}
+		
 		}
+		
 	}
+
 	if (msg.MsgType == Messagetype::ACCEPT_MEETUP&&actor->GetThirst()<=10.0f)
 	{
 		actor->SetLocation(msg.ExtraInfo.spot);
@@ -638,7 +677,7 @@ void State_Walk::Execute(Actor* actor)
 	}
 	if (actor->GetSocialized() < 40 && !actor->HasSentMessage())
 	{
-		actor->RequestMeetup();
+		actor->RequestMeetupNow();
 	}
 	if (actor->GetSocialized() < 30 && actor->GetMoney() >= 200)
 	{
@@ -695,32 +734,39 @@ bool State_Walk::OnMessage(Actor* actor, const Telegram& msg)
 	}
 	else
 	{
-		cout << actor->GetName() << " has received message  from " << EntityManager::Instance()->GetNameByID(msg.Sender) << endl;
+		if (actor->GetName() != EntityManager::Instance()->GetNameByID(msg.Sender))
+		{
+			cout << actor->GetName() << " has received message  from " << EntityManager::Instance()->GetNameByID(msg.Sender) << endl;
+		}
 		cout << msg.MessageContent << endl;
 		if (msg.MsgType == Messagetype::REQUEST_MEETUP)
 		{
 			if (msg.ExtraInfo.Respond)
 			{
-				if (actor->GetMoney() > 2000 && actor->GetSocialized() <= 70)
+				if (msg.ExtraInfo.timeTick == EntityManager::Instance()->GetTick())
 				{
-					std::string message = actor->GetName() + ": Yeah sure, on my way now.";
-					ExtraInfo info;
-					info.Respond = true;
-					info.spot = msg.ExtraInfo.spot; 
-					MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), msg.Sender, message, Messagetype::ACCEPT_MEETUP, info);
-					actor->SetLocation(msg.ExtraInfo.spot); 
-					actor->ChangeState(new State_Socialize);
+					if (actor->GetMoney() > 2000 && actor->GetSocialized() <= 70)
+					{
+						std::string message = actor->GetName() + ": Yeah sure, on my way now.";
+						ExtraInfo info;
+						info.Respond = true;
+						info.spot = msg.ExtraInfo.spot;
+						MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), msg.Sender, message, Messagetype::ACCEPT_MEETUP, info);
+						actor->SetLocation(msg.ExtraInfo.spot);
+						actor->ChangeState(new State_Socialize);
 
+					}
+					else
+					{
+						std::string message = actor->GetName() + ": Sorry " + EntityManager::Instance()->GetNameByID(msg.Sender) + " I can't go. I gotta do something";
+						ExtraInfo info;
+						info.Respond = false;
+						MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), msg.Sender, message, Messagetype::DECLINE_MEETUP, info);
+					}
 				}
-				else
-				{
-					std::string message = actor->GetName() + ": Sorry " + EntityManager::Instance()->GetNameByID(msg.Sender) + " I can't go. I gotta do something";
-					ExtraInfo info;
-					info.Respond = false;
-					MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), msg.Sender, message, Messagetype::DECLINE_MEETUP, info);
-				}
-
 			}
+			
+			
 		}
 		if (msg.MsgType == Messagetype::ACCEPT_MEETUP)
 		{
@@ -816,30 +862,39 @@ bool State_Party::OnMessage(Actor* actor, const Telegram& msg)
 	}
 	else
 	{
-		cout << actor->GetName() << " has received message  from " << EntityManager::Instance()->GetNameByID(msg.Sender) << endl;
+		if (actor->GetName() != EntityManager::Instance()->GetNameByID(msg.Sender))
+		{
+			cout << actor->GetName() << " has received message  from " << EntityManager::Instance()->GetNameByID(msg.Sender) << endl;
+		}
 		cout << msg.MessageContent << endl;
 		if (msg.MsgType == Messagetype::REQUEST_MEETUP)
 		{
+			
 			if (msg.ExtraInfo.Respond)
 			{
-				if (actor->GetMoney() > 2000 && actor->GetSocialized() <= 70)
+				if (msg.ExtraInfo.timeTick == EntityManager::Instance()->GetTick())
 				{
-					std::string message = actor->GetName() + ": Yeah sure, on my way now.";
-					ExtraInfo info;
-					info.Respond = true;
-					info.spot = msg.ExtraInfo.spot; 
-					MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), msg.Sender, message, Messagetype::ACCEPT_MEETUP, info);
-					actor->SetLocation(msg.ExtraInfo.spot); 
-					actor->ChangeState(new State_Socialize);
-				}
-				else
-				{
-					std::string message = actor->GetName() + ": Sorry " + EntityManager::Instance()->GetNameByID(msg.Sender) + " I can't go. I am busy working";
-					ExtraInfo info;
-					info.Respond = false;
-					MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), msg.Sender, message, Messagetype::DECLINE_MEETUP, info);
+					if (actor->GetMoney() > 2000 && actor->GetSocialized() <= 70)
+					{
+						std::string message = actor->GetName() + ": Yeah sure, on my way now.";
+						ExtraInfo info;
+						info.Respond = true;
+						info.spot = msg.ExtraInfo.spot;
+						MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), msg.Sender, message, Messagetype::ACCEPT_MEETUP, info);
+						actor->SetLocation(msg.ExtraInfo.spot);
+						actor->ChangeState(new State_Socialize);
+					}
+					else
+					{
+						std::string message = actor->GetName() + ": Sorry " + EntityManager::Instance()->GetNameByID(msg.Sender) + " I can't go. I am busy working";
+						ExtraInfo info;
+						info.Respond = false;
+						MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), msg.Sender, message, Messagetype::DECLINE_MEETUP, info);
+					}
 				}
 			}
+			
+			
 		}
 		if (msg.MsgType == Messagetype::ACCEPT_MEETUP)
 		{
@@ -892,7 +947,7 @@ void State_Shopping::Execute(Actor* actor)
 		}
 		if (actor->GetSocialized() < 40 && !actor->HasSentMessage())
 		{
-			actor->RequestMeetup();
+			actor->RequestMeetupNow();
 			return;
 		}
 		if (actor->GetSocialized() < 30 && actor->GetMoney() >= 200)
@@ -940,30 +995,39 @@ bool State_Shopping::OnMessage(Actor* actor, const Telegram& msg)
 	}
 	else
 	{
-		cout << actor->GetName() << " has received message  from " << EntityManager::Instance()->GetNameByID(msg.Sender) << endl;
+		if (actor->GetName() != EntityManager::Instance()->GetNameByID(msg.Sender))
+		{
+			cout << actor->GetName() << " has received message  from " << EntityManager::Instance()->GetNameByID(msg.Sender) << endl;
+		}
 		cout << msg.MessageContent << endl;
 		if (msg.MsgType == Messagetype::REQUEST_MEETUP)
 		{
+			
 			if (msg.ExtraInfo.Respond)
 			{
-				if (actor->GetMoney() > 2000 && actor->GetSocialized() <= 70)
+				if (msg.ExtraInfo.timeTick == EntityManager::Instance()->GetTick())
 				{
-					std::string message = actor->GetName() + ": Yeah sure, on my way now.";
-					ExtraInfo info;
-					info.Respond = true;
-					info.spot = msg.ExtraInfo.spot;
-					MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), msg.Sender, message, Messagetype::ACCEPT_MEETUP, info);
-					actor->SetLocation(msg.ExtraInfo.spot);
-					actor->ChangeState(new State_Socialize);
-				}
-				else
-				{
-					std::string message = actor->GetName() + ": Sorry " + EntityManager::Instance()->GetNameByID(msg.Sender) + " I can't go. I am busy working";
-					ExtraInfo info;
-					info.Respond = false;
-					MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), msg.Sender, message, Messagetype::DECLINE_MEETUP, info);
+
+					if (actor->GetMoney() > 2000 && actor->GetSocialized() <= 70)
+					{
+						std::string message = actor->GetName() + ": Yeah sure, on my way now.";
+						ExtraInfo info;
+						info.Respond = true;
+						info.spot = msg.ExtraInfo.spot;
+						MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), msg.Sender, message, Messagetype::ACCEPT_MEETUP, info);
+						actor->SetLocation(msg.ExtraInfo.spot);
+						actor->ChangeState(new State_Socialize);
+					}
+					else
+					{
+						std::string message = actor->GetName() + ": Sorry " + EntityManager::Instance()->GetNameByID(msg.Sender) + " I can't go. I am busy working";
+						ExtraInfo info;
+						info.Respond = false;
+						MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), msg.Sender, message, Messagetype::DECLINE_MEETUP, info);
+					}
 				}
 			}
+			
 		}
 		if (msg.MsgType == Messagetype::ACCEPT_MEETUP)
 		{
@@ -1079,7 +1143,10 @@ bool State_Socialize::OnMessage(Actor* actor, const Telegram& msg)
 	}
 	else
 	{
-		cout << actor->GetName() << " has received message  from " << EntityManager::Instance()->GetNameByID(msg.Sender) << endl;
+		if (actor->GetName() != EntityManager::Instance()->GetNameByID(msg.Sender))
+		{
+			cout << actor->GetName() << " has received message  from " << EntityManager::Instance()->GetNameByID(msg.Sender) << endl;
+		}
 		cout << msg.MessageContent << endl;
 		if (msg.MsgType == Messagetype::CANCEL_MEETUP)
 		{
@@ -1088,13 +1155,18 @@ bool State_Socialize::OnMessage(Actor* actor, const Telegram& msg)
 				
 			
 		}
-		if (msg.MsgType == Messagetype::REQUEST_MEETUP)
-		{
-			std::string message = actor->GetName() + ": Yeah, I'm already there"; 
-			ExtraInfo info; 
-			info.Respond = true; 
-			info.spot = msg.ExtraInfo.spot; 
-			MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), msg.Sender, message, Messagetype::ACCEPT_MEETUP, info); 
+		
+		if (msg.MsgType == Messagetype::REQUEST_MEETUP) 
+		{ 
+			if (msg.ExtraInfo.timeTick == EntityManager::Instance()->GetTick()) 
+			{
+				std::string message = actor->GetName() + ": Yeah, I'm already there"; 
+				ExtraInfo info; 
+				info.Respond = true; 
+				info.spot = msg.ExtraInfo.spot; 
+				MessageDispatcher::Instance()->DispatchMessage(0.0, actor->GetID(), msg.Sender, message, Messagetype::ACCEPT_MEETUP, info); 
+			}
+			
 		}
 		
 	}

@@ -17,7 +17,9 @@ void MessageDispatcher::DispatchMessage(double delay, int senderID, int receiver
     telegram.ExtraInfo = extraInfo; 
     telegram.MessageContent = content;
     telegram.MsgType = type;
-    telegram.DispatchTime = std::clock() + delay;
+    telegram.DispatchTime = currentTick + delay;
+    telegram.ExtraInfo.timeTick = telegram.DispatchTime; 
+
 
     if (delay <= 0.0)
     {
@@ -26,22 +28,31 @@ void MessageDispatcher::DispatchMessage(double delay, int senderID, int receiver
     }
     else
     {
-      
+        PriorityQueue.push(telegram);
     }
 
 }
+void MessageDispatcher::UpdateTick(int i)
+{
+    currentTick = i;
+}
 void MessageDispatcher::DispatchMessageDelayed() // no delayed message implementation yet
 {
-  //  double currentTime = std::clock();
-  //
-  //  while (!PriorityQueue.empty() && PriorityQueue.top().DispatchTime <= currentTime) {
-  //      Telegram telegram = PriorityQueue.top();
-  //      PriorityQueue.pop();
-  //
-  //      BaseGameEntity* receiver = EntityManager::Instance()->GetEntityByID(telegram.Receiver);
-  //      Discharge(receiver, telegram);
-  //  }
-  // 
+    double currentTime = currentTick;
+  
+    while (!PriorityQueue.empty()) { 
+
+        Telegram telegram = PriorityQueue.top(); 
+        if (telegram.DispatchTime > currentTime) //if next message is not ready to be sent
+        {
+            break;
+        }
+        PriorityQueue.pop(); 
+  
+        BaseGameEntity* receiver = EntityManager::Instance()->GetEntityByID(telegram.Receiver); 
+        Discharge(receiver, telegram); 
+    }
+   
 }
 MessageDispatcher* MessageDispatcher::Instance() 
 {

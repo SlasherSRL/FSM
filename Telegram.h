@@ -29,3 +29,11 @@ struct Telegram
     std::string MessageContent;
     ExtraInfo ExtraInfo;
 };
+
+struct CompareTelegram
+{
+    bool operator()(const Telegram& a, const Telegram& b)
+    {
+        return a.DispatchTime > b.DispatchTime;
+    }
+};

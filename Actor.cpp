@@ -73,7 +73,7 @@ void Actor::Update()
 
 
 }
-void Actor::RequestMeetup() //default message for meeting up at the park
+void Actor::RequestMeetupNow() //default message for meeting up at the park now
 {
 	SentMessage(true);
 	std::vector<int> friends = EntityManager::Instance()->GetOtherIDs(GetID());
@@ -85,6 +85,7 @@ void Actor::RequestMeetup() //default message for meeting up at the park
 			std::string message = GetName() + ": Hello " + EntityManager::Instance()->GetNameByID(id) + " would you like to go to the " + LocationToString(Location::PARK);
 			ExtraInfo info;
 			info.Respond = true;
+			info.timeTick = EntityManager::Instance()->GetTick();
 			info.spot = Location::PARK;
 			MessageDispatcher::Instance()->DispatchMessage(0.0, GetID(), id, message, Messagetype::REQUEST_MEETUP, info);
 		}

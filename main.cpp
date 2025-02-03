@@ -2,6 +2,7 @@
 #include <chrono>
 #include "Actor.h"
 #include "EntityManager.h"
+#include "MessageDispatcher.h"
 using namespace std;
 int main()
 {
@@ -42,6 +43,8 @@ int main()
 			if (!EntityManager::Instance()->EmptyList())
 			{
 				EntityManager::Instance()->SetTickCounter(tickCounter); 
+				MessageDispatcher::Instance()->UpdateTick(tickCounter);
+				MessageDispatcher::Instance()->DispatchMessageDelayed();
 				EntityManager::Instance()->ConvertTicksToTime(tickCounter);
 				EntityManager::Instance()->UpdateAll();
 				cout << endl;
